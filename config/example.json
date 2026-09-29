@@ -1,6 +1,8 @@
 {
   "RulePrefix": "NWC",
+  "BackupDirectory": "backups",
   "Dns": {
+    "Endpoint": "https://127.0.0.1:5380",
     "Provider": "Technitium",
     "Categories": ["advertising_tracking", "adult", "torrents", "p2p_file_sharing", "gaming", "proxy_vpn"]
   },

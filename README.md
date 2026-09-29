@@ -227,13 +227,39 @@ O primeiro incremento implementado contém:
 - listagem e remoção de regras próprias;
 - testes automatizados com Pester 3.4 ou superior.
 
+O segundo incremento implementado contém:
+
+- diretório de backup configurável;
+- exportação automática da configuração do firewall antes de `Apply`;
+- restauração por arquivo `.wfw`;
+- validação de endpoint DNS com HTTPS;
+- configuração padrão do Technitium DNS Server.
+
 Execute os testes com:
 
 ```powershell
 Invoke-Pester .\tests\NetworkControl.Tests.ps1 -PassThru
 ```
 
-O modo `Apply` ainda exige `-ConfirmApply` e o backup, a integração efetiva com a API DNS e a restauração serão implementados nos próximos ciclos TDD.
+Para simular:
+
+```powershell
+.\src\NetworkControl.ps1 -Mode Simulate
+```
+
+Para aplicar as políticas, após revisar a simulação:
+
+```powershell
+.\src\NetworkControl.ps1 -Mode Apply -ConfigPath .\config\example.json -ConfirmApply
+```
+
+Para restaurar um backup:
+
+```powershell
+.\src\NetworkControl.ps1 -Mode Restore -BackupPath .\backups\NWC-firewall-AAAAMMDD-HHMMSS.wfw
+```
+
+O modo `Apply` exige `-ConfirmApply` e cria o backup automaticamente. A integração efetiva com a API HTTP do Technitium, a criação das regras por processo e a filtragem das categorias DNS ainda serão implementadas nos próximos ciclos TDD. O uso de `netsh advfirewall` para exportação e importação segue a necessidade de preservar uma cópia reversível da política, conforme a recomendação de documentação e manutenção da política de firewall (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
 
 ## 15. Rastreabilidade obrigatória antes do merge
 
@@ -256,6 +282,7 @@ O fluxo obrigatório será:
 |---|---|---|---|---|---|
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
 | 2026-09-29 | `abfcbd7` | Inclusão de referências para MVP, requisitos, qualidade e testes | `README.md` | Revisão bibliográfica concluída | Referências normativas podem exigir acesso institucional |
+| 2026-09-29 | `PENDENTE` | Backup, restauração e validação de endpoint DNS HTTPS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados com Pester 3.4 | API DNS e regras de processos ainda não integradas |
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
 
