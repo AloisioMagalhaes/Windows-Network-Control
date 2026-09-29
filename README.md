@@ -331,7 +331,7 @@ Alterações que exigirem decisão humana de compatibilidade, segurança ou muda
 
 ## 13. Critério de conclusão
 
-O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, configurar DoH sem API key, aplicar políticas dos quatro navegadores, bloquear contornos locais e categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos. A aplicação centralizada das políticas de navegador e a distribuição em massa ainda não estão concluídas no script atual.
+O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, configurar DoH sem API key, aplicar políticas dos quatro navegadores, bloquear contornos locais e categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos. A distribuição em massa e o bloqueio local completo de contornos ainda não estão concluídos.
 
 ## 14. Desenvolvimento atual
 
@@ -346,25 +346,29 @@ O projeto será considerado concluído quando o script puder criar backup, simul
 - autenticação da API somente por `NEXTDNS_API_KEY`;
 - testes Pester e validação automatizada do README;
 - empacotamento e publicação por GitHub Actions com checksum SHA-256.
+- inventário de executáveis em `C:\Program Files` e `C:\Program Files (x86)`;
+- bloqueio e desbloqueio seletivo de entrada e saída por múltiplos executáveis;
+- política automática para desativar DoH próprio em Chrome, Edge, Brave e Firefox.
 
 ### Parcial ou dependente de configuração externa
 
 - identificação do dispositivo depende de nome no endpoint DoH;
 - categorias, blocklists e controles parentais são aplicados pelo perfil remoto NextDNS;
-- políticas de Chrome, Edge, Brave e Firefox precisam ser aplicadas por GPO, Intune ou configuração manual;
+- políticas dos navegadores exigem execução local como Administrador e reinício dos processos;
 - bloqueio de contorno depende do recurso NextDNS e não substitui regras locais;
 - observabilidade detalhada depende dos logs do NextDNS e do transcript do operador.
 
 ### Ainda não entregue
 
-- allowlist granular de aplicações no firewall;
-- bloqueio automático por processo, serviço, driver ou emulador;
+- allowlist granular automática de aplicações no firewall;
+- bloqueio automático por serviço, driver ou emulador;
 - detecção genérica de virtualização;
 - bloqueio local completo de DNS externo, DoT, DoH alternativo, VPN, proxy e Tor;
 - distribuição em massa para todos os computadores da sala;
-- política automática dos navegadores pelo próprio script.
+- inventário de programas fora dos diretórios padrão do `C:`;
+- restauração automática das políticas de navegador anteriores.
 
-O próximo incremento deve implementar políticas de navegador e regras locais de contorno somente após testes de reversão, preservação das exceções do Windows e validação em computador de laboratório.
+O próximo incremento deve implementar regras locais de contorno, allowlist granular e distribuição em massa somente após testes de reversão, preservação das exceções do Windows e validação em computador de laboratório.
 
 Execute os testes com:
 
@@ -454,6 +458,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
 | 2026-09-29 | `ed2ec1e` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
 | 2026-09-29 | `abfcbd7` | Inclusão de referências para MVP, requisitos, qualidade e testes | `README.md` | Revisão bibliográfica concluída | Referências normativas podem exigir acesso institucional |
@@ -571,4 +576,5 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
