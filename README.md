@@ -257,3 +257,41 @@ O fluxo obrigatório será:
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
+
+## 16. Fundamentação científica e acadêmica
+
+### 16.1 Objetivo e política de bloqueio
+
+O objetivo de combinar firewall local, filtragem DNS e regras específicas para processos segue o princípio de defesa em camadas. A política de bloqueio padrão para conexões não autorizadas é coerente com a recomendação de negar tráfego por padrão e liberar apenas o que for necessário, desde que a política seja documentada, revisada e baseada em análise de risco (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009, p. 27).
+
+Por isso, o projeto mantém exclusões explícitas para componentes essenciais do Windows, navegadores e serviços necessários. O bloqueio indiscriminado poderia interromper atualizações, resolução de nomes, segurança e administração do sistema. A lista de exceções deverá ser revisada sempre que novas aplicações ou vulnerabilidades forem identificadas (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009, p. 27, 40-41).
+
+### 16.2 Filtragem DNS e limitações
+
+O DNS será utilizado como camada de filtragem por domínio e categoria, não como mecanismo suficiente para identificar processos locais, emuladores ou virtualização. A literatura técnica destaca que DNS sobre HTTPS pode ocultar consultas em tráfego HTTPS e dificultar monitoramento e filtragem baseados em DNS (EUROPEAN UNION AGENCY FOR CYBERSECURITY, 2020, p. 30-31). Assim, o projeto combina DNS auto-hospedado com regras do firewall baseadas em executáveis, serviços, portas, endereços e interfaces.
+
+Essa arquitetura não promete bloqueio absoluto. VPNs, DoH, DoT, endereços IP diretos, CDNs compartilhadas, túneis e domínios ainda não classificados podem reduzir a eficácia da filtragem. A conclusão deverá ser baseada em testes observáveis, logs e cenários documentados, e não na suposição de que uma categoria DNS representa todos os comportamentos de uma aplicação.
+
+### 16.3 Metodologia TDD
+
+O desenvolvimento utiliza ciclos de teste, implementação e refatoração. A evidência experimental sobre TDD não é uniforme: estudos relatam possíveis ganhos de qualidade, mas também efeitos dependentes do contexto, experiência dos participantes e forma de avaliação (ROMANO et al., 2017; FUCCI et al., 2017). Portanto, o projeto não declara que TDD garante qualidade; utiliza testes como evidência verificável para requisitos específicos.
+
+Quando possível, os testes deverão ser escritos antes da implementação, incluir casos de erro e validar comportamento observável. A incorporação de mutation testing é uma melhoria planejada, pois experimento controlado encontrou testes mais fortes quando a mutação foi adicionada ao ciclo TDD (ROMAN; MNICH, 2021).
+
+### 16.4 Critérios de conclusão
+
+Os critérios de conclusão foram convertidos em evidências verificáveis: testes aprovados, simulação sem alteração do sistema, backup anterior à aplicação, idempotência, logs sem segredos, reversão funcional e validação de exclusões. Essa abordagem evita tratar cobertura de código isolada como prova suficiente de segurança ou eficácia, em conformidade com as limitações apontadas pela pesquisa empírica sobre TDD (ROMANO et al., 2017; ROMAN; MNICH, 2021).
+
+## 17. Referências
+
+As referências seguem a ABNT NBR 6023:2018.
+
+EUROPEAN UNION AGENCY FOR CYBERSECURITY. *Security and privacy for public DNS resolvers*. Heraklion: ENISA, 2020. Disponível em: <https://www.enisa.europa.eu/sites/default/files/publications/ENISA_Report_-_Security_and_Privacy_for_Public_DNS_Resolvers.pdf>. Acesso em: 29 set. 2026.
+
+FUCCI, Davide et al. A dissection of the test-driven development process: does it really matter to test-first or to test-last? *IEEE Transactions on Software Engineering*, v. 43, n. 7, p. 597-614, 2017. DOI: 10.1109/TSE.2016.2616567. Disponível em: <https://doi.org/10.1109/TSE.2016.2616567>. Acesso em: 29 set. 2026.
+
+NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. *Guidelines on firewalls and firewall policy*. Gaithersburg: NIST, 2009. (Special Publication 800-41, Revision 1). Disponível em: <https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-41r1.pdf>. Acesso em: 29 set. 2026.
+
+ROMAN, Adam; MNICH, Michal. Test-driven development with mutation testing: an experimental study. *Software Quality Journal*, v. 29, p. 1-38, 2021. DOI: 10.1007/s11219-020-09534-x. Disponível em: <https://doi.org/10.1007/s11219-020-09534-x>. Acesso em: 29 set. 2026.
+
+ROMANO, Simone et al. Findings from a multi-method study on test-driven development. *Information and Software Technology*, v. 89, p. 64-77, 2017. DOI: 10.1016/j.infsof.2017.03.010. Disponível em: <https://doi.org/10.1016/j.infsof.2017.03.010>. Acesso em: 29 set. 2026.
