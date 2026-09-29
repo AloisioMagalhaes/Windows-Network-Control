@@ -27,6 +27,9 @@ jobs:
             "Total: $($r.TotalCount) | Passed: $($r.PassedCount) | Failed: $($r.FailedCount)" | Out-File $env:GITHUB_STEP_SUMMARY -Append
             if ($r.FailedCount) { exit 1 }
           } finally { Stop-Transcript }
+      - name: Validate PRD README
+        shell: pwsh
+        run: .\tools\Test-Readme.ps1
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
