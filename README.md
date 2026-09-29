@@ -424,6 +424,17 @@ Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. O com
 
 O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. Para evitar perda de serviços essenciais, o MVP mantém entrada bloqueada e saída permitida por padrão; a saída só deverá ser bloqueada depois que uma allowlist granular for implementada e validada. Essa escolha segue a orientação da Microsoft para manter saída permitida na maioria das implantações e a recomendação de bloquear por exceção somente com regras explícitas (MICROSOFT, 2026; NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009). O payload remoto maximizado cobre os recursos de segurança, privacidade e controle parental declarados no perfil; processos, emuladores, virtualização, políticas de navegador e bloqueios locais de contorno continuam limitações do MVP.
 
+### Inventário, bloqueio seletivo e políticas dos navegadores
+
+```powershell
+.\src\NetworkControl.ps1 -Mode ListPrograms
+.\src\NetworkControl.ps1 -Mode BlockPrograms -ProgramPath 'C:\Program Files\Exemplo\app.exe','C:\Program Files (x86)\Outro\outro.exe' -ConfirmApply
+.\src\NetworkControl.ps1 -Mode UnblockPrograms -ProgramPath 'C:\Program Files\Exemplo\app.exe' -ConfirmApply
+.\src\NetworkControl.ps1 -Mode ConfigureBrowserPolicies -ConfirmApply
+```
+
+`ListPrograms` inventaria executáveis em `C:\Program Files` e `C:\Program Files (x86)`. O bloqueio cria regras gerenciadas de entrada e saída somente para os caminhos selecionados; nenhum programa é bloqueado automaticamente. A política dos navegadores desativa o DoH próprio de Chrome, Edge, Brave e Firefox para que usem o DNS do Windows configurado pelo `ConfigureDns`; exige Administrador e reinício dos navegadores.
+
 ## 15. Rastreabilidade obrigatória antes do merge
 
 Toda alteração no repositório deverá ser documentada no `README.md` antes de ser incorporada à branch principal `main`.
@@ -443,6 +454,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `4890417` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
 | 2026-09-29 | `abfcbd7` | Inclusão de referências para MVP, requisitos, qualidade e testes | `README.md` | Revisão bibliográfica concluída | Referências normativas podem exigir acesso institucional |
 | 2026-09-29 | `0880b64` | Backup, restauração e validação de endpoint DNS HTTPS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados com Pester 3.4 | API DNS e regras de processos ainda não integradas |
@@ -559,3 +571,4 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+

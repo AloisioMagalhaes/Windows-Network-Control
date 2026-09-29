@@ -1,10 +1,11 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Simulate','Status','ListRules','ConfigureDns','Apply','RemoveManagedRules','Restore')]
+    [ValidateSet('Simulate','Status','ListRules','ListPrograms','ConfigureDns','ConfigureBrowserPolicies','BlockPrograms','UnblockPrograms','Apply','RemoveManagedRules','Restore')]
     [string]$Mode='Simulate',
     [string]$ConfigPath,
     [string]$BackupPath,
     [switch]$ConfirmApply
+    ,[string[]]$ProgramPath
 )
 
 $script:NcCategories = @('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')
@@ -25,6 +26,35 @@ function Get-NcDefaultConfig {
 
 function Get-NcRuleName([string]$Kind,[string]$Value) {
     "NWC-$Kind-$([IO.Path]::GetFileName($Value))"
+}
+
+function Get-NcInstalledPrograms {
+    $roots=@('C:\Program Files','C:\Program Files (x86)') | Where-Object { Test-Path $_ }
+    Get-ChildItem $roots -Filter *.exe -File -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName -Unique | Sort-Object
+}
+
+function Get-NcProgramPaths([string[]]$Paths) {
+    $p=@($Paths | Where-Object { $_ } | ForEach-Object { (Resolve-Path $_ -ErrorAction Stop).Path })
+    if (!$p) { throw 'Informe ao menos um executável com -ProgramPath' }
+    $p | Where-Object { $_ -match '(?i)^[A-Z]:\\' -and [IO.Path]::GetExtension($_) -ieq '.exe' -and (Test-Path $_ -PathType Leaf) } | Select-Object -Unique
+}
+
+function Set-NcProgramRules([string[]]$Paths,[bool]$Block) {
+    foreach ($p in Get-NcProgramPaths $Paths) {
+        $n=Get-NcRuleName 'Program' $p
+        if (!$Block) { Get-NetFirewallRule -DisplayName "$n-Inbound","$n-Outbound" -ErrorAction SilentlyContinue | Remove-NetFirewallRule -ErrorAction SilentlyContinue; continue }
+        foreach ($d in 'Inbound','Outbound') { if (!(Get-NetFirewallRule -DisplayName "$n-$d" -ErrorAction SilentlyContinue)) { New-NetFirewallRule -DisplayName "$n-$d" -Direction $d -Program $p -Action Block -Profile Any -Group NWC -Description 'Managed by Windows-Network-Control' | Out-Null } }
+    }
+}
+
+function Set-NcBrowserPolicies {
+    $keys=@(
+        @('HKLM:\SOFTWARE\Policies\Google\Chrome','DnsOverHttpsMode','off'),
+        @('HKLM:\SOFTWARE\Policies\Microsoft\Edge','DnsOverHttpsMode','off'),
+        @('HKLM:\SOFTWARE\Policies\BraveSoftware\Brave','DnsOverHttpsMode','off')
+    )
+    foreach ($x in $keys) { New-Item $x[0] -Force | Out-Null; New-ItemProperty $x[0] $x[1] -Value $x[2] -PropertyType String -Force | Out-Null }
+    $f='HKLM:\SOFTWARE\Policies\Mozilla\Firefox'; New-Item $f -Force | Out-Null; New-ItemProperty $f 'DNSOverHTTPS' -Value 0 -PropertyType DWord -Force | Out-Null; New-ItemProperty $f 'DNSOverHTTPSLocked' -Value 1 -PropertyType DWord -Force | Out-Null
 }
 
 function Test-NcConfig($Config) {
@@ -121,10 +151,14 @@ function Invoke-Nc([string]$Mode,$Config) {
         Simulate { 'SIMULATION: no changes applied' }
         Status { Get-NetFirewallProfile | Select-Object Name,Enabled,DefaultInboundAction,DefaultOutboundAction }
         ListRules { Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object DisplayName -like "$($Config.RulePrefix)-*" }
+        ListPrograms { Get-NcInstalledPrograms }
         ConfigureDns {
             if (!$ConfirmApply) { throw 'ConfigureDns requires -ConfirmApply' }
             Set-NcWindowsRemoteDns $Config | Out-Null
         }
+        ConfigureBrowserPolicies { if (!$ConfirmApply) { throw 'ConfigureBrowserPolicies requires -ConfirmApply' }; Set-NcBrowserPolicies }
+        BlockPrograms { if (!$ConfirmApply) { throw 'BlockPrograms requires -ConfirmApply' }; Set-NcProgramRules $ProgramPath $true }
+        UnblockPrograms { if (!$ConfirmApply) { throw 'UnblockPrograms requires -ConfirmApply' }; Set-NcProgramRules $ProgramPath $false }
         Apply {
             if (!$ConfirmApply) { throw 'Apply requires -ConfirmApply' }
             Export-NcFirewallBackup $Config | Out-Null
@@ -144,5 +178,6 @@ if ($MyInvocation.InvocationName -ne '.') {
 }
 
 if ($ExecutionContext.SessionState.Module) {
-    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Get-NcSafeFirewallPolicy,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Get-NcInstalledPrograms,Get-NcProgramPaths,Get-NcDefaultConfig,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Get-NcSafeFirewallPolicy,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
 }
+

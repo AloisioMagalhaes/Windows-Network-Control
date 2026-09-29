@@ -87,4 +87,14 @@ Describe 'NetworkControl' {
         $p = Get-NcSafeFirewallPolicy (Get-NcDefaultConfig)
         if ($p.Inbound -ne 'Block' -or $p.Outbound -ne 'Allow') { throw 'unsafe firewall baseline' }
     }
+
+    It 'expõe inventário e bloqueio seletivo de programas' {
+        $s=Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw
+        if ($s -notmatch 'ListPrograms' -or $s -notmatch 'BlockPrograms' -or $s -notmatch 'UnblockPrograms' -or $s -notmatch 'New-NetFirewallRule') { throw 'program controls missing' }
+    }
+
+    It 'expõe políticas para forçar navegadores ao DNS do Windows' {
+        $s=Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw
+        if ($s -notmatch 'ConfigureBrowserPolicies' -or $s -notmatch 'DnsOverHttpsMode' -or $s -notmatch 'DNSOverHTTPSLocked') { throw 'browser policies missing' }
+    }
 }
