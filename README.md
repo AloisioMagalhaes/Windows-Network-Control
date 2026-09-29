@@ -463,6 +463,86 @@ Para uso remoto em uma linha, o bootstrap pode ser carregado por `irm` e executa
 
 O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `main` é adequada somente para teste controlado. Mesmo iniciado por `irm`/`iex`, o bootstrap valida o SHA-256 da release antes de extrair e executar o script principal; requer conexão à API pública e aos assets do GitHub.
 
+### Teste local dos modos
+
+Execute o PowerShell como Administrador e defina o caminho do bootstrap baixado:
+
+```powershell
+$d="$env:TEMP\NWC-bootstrap.ps1"
+```
+
+Teste sem alterar o computador:
+
+```powershell
+& $d -Mode Simulate
+```
+
+Consulte o estado do firewall:
+
+```powershell
+& $d -Mode Status
+```
+
+Liste executáveis instalados nos diretórios padrão:
+
+```powershell
+& $d -Mode ListPrograms
+& $d -Mode ListPrograms | Out-File "$env:TEMP\programas.txt"
+```
+
+Liste regras gerenciadas pelo projeto:
+
+```powershell
+& $d -Mode ListRules
+```
+
+Bloqueie entrada e saída de um ou mais executáveis selecionados:
+
+```powershell
+& $d -Mode BlockPrograms -ProgramPath 'C:\Program Files\Exemplo\app.exe' -ConfirmApply
+& $d -Mode BlockPrograms -ProgramPath 'C:\App1\a.exe','C:\App2\b.exe' -ConfirmApply
+```
+
+Remova as regras de bloqueio gerenciadas:
+
+```powershell
+& $d -Mode UnblockPrograms -ProgramPath 'C:\Program Files\Exemplo\app.exe' -ConfirmApply
+```
+
+Configure somente o DNS-over-HTTPS do Windows, sem API key:
+
+```powershell
+& $d -Mode ConfigureDns -ConfirmApply
+```
+
+Desative o DoH próprio de Chrome, Edge, Firefox e Brave para que usem o DNS do Windows:
+
+```powershell
+& $d -Mode ConfigureBrowserPolicies -ConfirmApply
+```
+
+Para aplicar backup, firewall, DNS e política remota NextDNS, forneça a chave somente na sessão atual:
+
+```powershell
+$env:NEXTDNS_API_KEY='SUA_CHAVE'
+& $d -Mode Apply -ConfirmApply
+```
+
+Localize e restaure um backup do firewall:
+
+```powershell
+Get-ChildItem .\backups\*.wfw
+& $d -Mode Restore -BackupPath 'C:\caminho\backups\NWC-firewall-AAAAMMDD-HHMMSS.wfw'
+```
+
+Remova todas as regras `NWC-*` gerenciadas pelo projeto:
+
+```powershell
+& $d -Mode RemoveManagedRules
+```
+
+Sequência recomendada: `Simulate`, `Status`, `ListPrograms`, `ConfigureDns`, `ConfigureBrowserPolicies`, `BlockPrograms`, `ListRules`, `UnblockPrograms`. Execute `Apply` somente após revisar backup, chave NextDNS e exceções. `Restore` requer um arquivo `.wfw` existente.
+
 ## 15. Rastreabilidade obrigatória antes do merge
 
 Toda alteração no repositório deverá ser documentada no `README.md` antes de ser incorporada à branch principal `main`.
@@ -481,7 +561,8 @@ O fluxo obrigatório será:
 ### Registro de alterações
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
-|---|---|---|---|---|---| 
+|---|---|---|---|---|---|
+| 2026-09-29 | `8671b8b` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
 | 2026-09-29 | `071027b` | Correção da documentação para usar o bootstrap corrigido da `v0.1.24` | `README.md` | README validado localmente | `v0.1.22` não deve mais ser usada para execução remota |
 | 2026-09-29 | `12a238c` | Correção do repasse de `-Mode` no bootstrap remoto usando parâmetros nomeados | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 20 testes Pester e README validados localmente | A release anterior apresentava erro ao repassar argumentos ao script principal |
 | 2026-09-29 | `be2d106` | Correção do validador do comando `irm` e atualização da tag fixa para `v0.1.18` | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | A release automática anterior foi publicada apesar da falha de validação documental |
@@ -606,6 +687,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
