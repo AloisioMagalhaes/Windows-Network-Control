@@ -72,3 +72,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     $c = if ($ConfigPath) { Get-Content $ConfigPath -Raw | ConvertFrom-Json } else { Get-NcDefaultConfig }
     Invoke-Nc $Mode $c
 }
+
+if ($ExecutionContext.SessionState.Module) {
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Invoke-Nc
+}
