@@ -483,7 +483,7 @@ O fluxo obrigatório será:
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
 | 2026-09-29 | `be2d106` | Correção do validador do comando `irm` e atualização da tag fixa para `v0.1.18` | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | A release automática anterior foi publicada apesar da falha de validação documental |
-| 2026-09-29 | `9e43b31` | Atualização do comando de uma linha para a release publicada `v0.1.20` | `README.md` | README validado localmente | A tag deve permanecer publicada antes da implantação |
+| 2026-09-29 | `e91fa94` | Atualização do comando de uma linha para a release publicada `v0.1.20` | `README.md` | README validado localmente | A tag deve permanecer publicada antes da implantação |
 | 2026-09-29 | `662da0f` | Requisito documentado para execução remota em uma linha via `irm` com tag fixa e validação anterior do artefato | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | `irm` executa o bootstrap remoto; a tag deve ser revisada antes da implantação |
 | 2026-09-29 | `178b987` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
 | 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
