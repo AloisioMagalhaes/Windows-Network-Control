@@ -1,5 +1,69 @@
 # Windows Network Control
 
+## Comece aqui: explicação para iniciantes
+
+Este projeto é um **controle de rede para Windows**. Pense nele como três camadas:
+
+1. **Firewall:** controla quais programas podem receber ou enviar conexões.
+2. **NextDNS:** filtra sites por categorias, como anúncios, pornografia, pirataria e jogos.
+3. **Políticas dos navegadores:** orientam Chrome, Edge, Firefox e Brave a usar o DNS configurado no Windows.
+
+O programa não “vigia” a tela dos alunos e não bloqueia todos os programas automaticamente. O administrador escolhe os executáveis que deseja bloquear. O DNS também não identifica todos os processos: ele filtra nomes de sites.
+
+### Caminho seguro de cinco passos
+
+Abra o PowerShell como **Administrador**. Primeiro baixe a ferramenta publicada e valide a release antes de executá-la:
+
+```powershell
+$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.30/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d
+```
+
+1. Veja o que aconteceria, sem alterar o computador:
+
+```powershell
+& $d -Mode Simulate
+```
+
+2. Veja o estado atual:
+
+```powershell
+& $d -Mode Status
+```
+
+3. Faça um backup antes de aplicar mudanças:
+
+```powershell
+$b="$env:USERPROFILE\Desktop\NWC-firewall-backup-$(Get-Date -Format yyyyMMdd-HHmmss).wfw"; netsh advfirewall export $b; Test-Path $b
+```
+
+4. Configure o DNS e os navegadores, se essa for a política desejada:
+
+```powershell
+& $d -Mode ConfigureDns -ConfirmApply
+& $d -Mode ConfigureBrowserPolicies -ConfirmApply
+```
+
+5. Para desfazer as configurações gerenciadas pelo projeto:
+
+```powershell
+& $d -Mode RemoveManagedConfiguration -ConfirmApply
+```
+
+**Regra simples:** `Simulate` apenas informa; `List` apenas consulta; `Block`, `Configure`, `Apply` e `Remove` alteram o computador; `Restore` usa um backup para voltar ao estado salvo.
+
+### Dicionário rápido
+
+| Termo | Explicação simples |
+|---|---|
+| DoH | DNS protegido dentro de HTTPS. |
+| API key | Senha técnica usada para alterar o perfil NextDNS. |
+| Programa bloqueado | Executável com regra de firewall impedindo entrada e saída. |
+| Regra `NWC-*` | Regra criada e identificada por este projeto. |
+| `-ConfirmApply` | Confirma que uma operação poderá alterar o Windows. |
+| Backup `.wfw` | Arquivo com as regras do firewall para restauração. |
+
+As seções seguintes detalham requisitos, limitações, arquitetura, testes e rastreabilidade para quem precisa auditar o projeto.
+
 ## 1. Objetivo
 
 Criar um script PowerShell rastreável para configurar o DNS-over-HTTPS nativo do Windows, administrar um perfil NextDNS por API e aplicar uma política inicial do Windows Defender Firewall.
@@ -570,6 +634,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `4d717e4` | Reorganização didática do README pela técnica Feynman, com caminho seguro, comandos essenciais e dicionário para leigos | `README.md` | 21 testes Pester e README validados localmente | As operações administrativas continuam exigindo elevação e revisão humana |
 | 2026-09-29 | `cd0df98` | Inclusão de remoção de configuração gerenciada para firewall, DNS/DoH e políticas dos navegadores | `README.md`, `src/NetworkControl.ps1`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 21 testes Pester e README validados localmente | O modo redefine DNS para automático e não restaura políticas anteriores personalizadas |
 | 2026-09-29 | `0837472` | Alinhamento das quatro seções de execução remota, inventário, bootstrap e teste local com a sequência da release `v0.1.26` | `README.md` | README validado localmente | Operações de alteração exigem Administrador; `Apply` exige API key |
 | 2026-09-29 | `ebb7df1` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
@@ -697,6 +762,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
