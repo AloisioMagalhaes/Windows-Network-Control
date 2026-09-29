@@ -562,7 +562,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
-| 2026-09-29 | `8671b8b` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
+| 2026-09-29 | `ebb7df1` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
 | 2026-09-29 | `071027b` | Correção da documentação para usar o bootstrap corrigido da `v0.1.24` | `README.md` | README validado localmente | `v0.1.22` não deve mais ser usada para execução remota |
 | 2026-09-29 | `12a238c` | Correção do repasse de `-Mode` no bootstrap remoto usando parâmetros nomeados | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 20 testes Pester e README validados localmente | A release anterior apresentava erro ao repassar argumentos ao script principal |
 | 2026-09-29 | `be2d106` | Correção do validador do comando `irm` e atualização da tag fixa para `v0.1.18` | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | A release automática anterior foi publicada apesar da falha de validação documental |
