@@ -634,7 +634,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
-| 2026-09-29 | `4d717e4` | Reorganização didática do README pela técnica Feynman, com caminho seguro, comandos essenciais e dicionário para leigos | `README.md` | 21 testes Pester e README validados localmente | As operações administrativas continuam exigindo elevação e revisão humana |
+| 2026-09-29 | `b2c0e2b` | Reorganização didática do README pela técnica Feynman, com caminho seguro, comandos essenciais e dicionário para leigos | `README.md` | 21 testes Pester e README validados localmente | As operações administrativas continuam exigindo elevação e revisão humana |
 | 2026-09-29 | `cd0df98` | Inclusão de remoção de configuração gerenciada para firewall, DNS/DoH e políticas dos navegadores | `README.md`, `src/NetworkControl.ps1`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 21 testes Pester e README validados localmente | O modo redefine DNS para automático e não restaura políticas anteriores personalizadas |
 | 2026-09-29 | `0837472` | Alinhamento das quatro seções de execução remota, inventário, bootstrap e teste local com a sequência da release `v0.1.26` | `README.md` | README validado localmente | Operações de alteração exigem Administrador; `Apply` exige API key |
 | 2026-09-29 | `ebb7df1` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
