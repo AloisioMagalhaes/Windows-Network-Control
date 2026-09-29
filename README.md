@@ -424,7 +424,7 @@ Start-Transcript "$d\configure-dns.log" -Force
 Stop-Transcript
 ```
 
-Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. O comando resolve a release publicada mais recente e valida o SHA-256 do respectivo arquivo, evitando atualizar manualmente versão e hash no README. Para vários computadores, use GPO, Intune ou ferramenta de administração remota autenticada. Não distribua a API key no comando; `Apply` exige `NEXTDNS_API_KEY` por mecanismo protegido. Políticas próprias de Chrome, Edge, Brave e Firefox ainda precisam ser aplicadas separadamente.
+Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. O comando resolve a release publicada mais recente e valida o SHA-256 do respectivo arquivo, evitando atualizar manualmente versão e hash no README. Para vários computadores, use GPO, Intune ou ferramenta de administração remota autenticada. Não distribua a API key no comando; `Apply` exige `NEXTDNS_API_KEY` por mecanismo protegido. As políticas dos navegadores podem ser aplicadas pelo próprio bootstrap com `ConfigureBrowserPolicies`.
 
 O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. Para evitar perda de serviços essenciais, o MVP mantém entrada bloqueada e saída permitida por padrão; a saída só deverá ser bloqueada depois que uma allowlist granular for implementada e validada. Essa escolha segue a orientação da Microsoft para manter saída permitida na maioria das implantações e a recomendação de bloquear por exceção somente com regras explícitas (MICROSOFT, 2026; NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009). O payload remoto maximizado cobre os recursos de segurança, privacidade e controle parental declarados no perfil; processos, emuladores, virtualização, políticas de navegador e bloqueios locais de contorno continuam limitações do MVP.
 
@@ -458,17 +458,17 @@ Não use `Invoke-WebRequest URL | Invoke-Expression`: o projeto exige validaçã
 Para uso remoto em uma linha, o bootstrap pode ser carregado por `irm` e executado com parâmetros:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.24/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.26/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
 ```
 
 O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `main` é adequada somente para teste controlado. Mesmo iniciado por `irm`/`iex`, o bootstrap valida o SHA-256 da release antes de extrair e executar o script principal; requer conexão à API pública e aos assets do GitHub.
 
 ### Teste local dos modos
 
-Execute o PowerShell como Administrador e defina o caminho do bootstrap baixado:
+Execute o PowerShell como Administrador e baixe o bootstrap da release publicada:
 
 ```powershell
-$d="$env:TEMP\NWC-bootstrap.ps1"
+$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.26/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d
 ```
 
 Teste sem alterar o computador:
@@ -562,6 +562,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `eb07677` | Alinhamento das quatro seções de execução remota, inventário, bootstrap e teste local com a sequência da release `v0.1.26` | `README.md` | README validado localmente | Operações de alteração exigem Administrador; `Apply` exige API key |
 | 2026-09-29 | `ebb7df1` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
 | 2026-09-29 | `071027b` | Correção da documentação para usar o bootstrap corrigido da `v0.1.24` | `README.md` | README validado localmente | `v0.1.22` não deve mais ser usada para execução remota |
 | 2026-09-29 | `12a238c` | Correção do repasse de `-Mode` no bootstrap remoto usando parâmetros nomeados | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 20 testes Pester e README validados localmente | A release anterior apresentava erro ao repassar argumentos ao script principal |
@@ -687,6 +688,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
