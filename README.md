@@ -455,6 +455,14 @@ O bootstrap consulta a release mais recente com `Invoke-WebRequest`, baixa o ZIP
 
 Não use `Invoke-WebRequest URL | Invoke-Expression`: o projeto exige validação do artefato antes da execução.
 
+Para uso remoto em uma linha, o bootstrap pode ser carregado por `irm` e executado com parâmetros:
+
+```powershell
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.15/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
+```
+
+O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `main` é adequada somente para teste controlado. Mesmo iniciado por `irm`/`iex`, o bootstrap valida o SHA-256 da release antes de extrair e executar o script principal; requer conexão à API pública e aos assets do GitHub.
+
 ## 15. Rastreabilidade obrigatória antes do merge
 
 Toda alteração no repositório deverá ser documentada no `README.md` antes de ser incorporada à branch principal `main`.
@@ -474,6 +482,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `f127dbd` | Requisito documentado para execução remota em uma linha via `irm` com tag fixa e validação anterior do artefato | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | `irm` executa o bootstrap remoto; a tag deve ser revisada antes da implantação |
 | 2026-09-29 | `178b987` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
 | 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
 | 2026-09-29 | `ed2ec1e` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
@@ -593,6 +602,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
