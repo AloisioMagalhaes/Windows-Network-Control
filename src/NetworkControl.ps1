@@ -68,13 +68,18 @@ function Get-NcRequiredNextDnsFeatures($Config) {
     @('AdsTrackersBlocklist','ThreatIntelligenceFeeds','NativeTrackingProtection','DisguisedThirdPartyTrackers','BlockBypassMethods','PornCategory','PiracyCategory','SafeSearch') | Where-Object { $f.$_ -ne $true }
 }
 
+function Get-NcNextDnsProfilePayload($Config) {
+    Test-NcConfig $Config | Out-Null
+    $f = $Config.Dns.MandatoryFeatures
+    $c = @()
+    if ('adult' -in $Config.Dns.Categories) { $c += @{id='porn';active=$true} }
+    if ('p2p_file_sharing' -in $Config.Dns.Categories -or 'torrents' -in $Config.Dns.Categories) { $c += @{id='piracy';active=$true} }
+    @{security=@{threatIntelligenceFeeds=($f.ThreatIntelligenceFeeds -eq $true)};privacy=@{blocklists=@(@{id='nextdns-recommended'});natives=@(@{id='windows'});disguisedTrackers=($f.DisguisedThirdPartyTrackers -eq $true);allowAffiliate=($f.AllowAffiliateTrackingLinks -eq $true)};parentalControl=@{categories=$c;safeSearch=($f.SafeSearch -eq $true);blockBypass=($f.BlockBypassMethods -eq $true)}}
+}
+
 function Invoke-NcNextDnsProfile($Config) {
-    foreach ($a in Get-NcNextDnsActions $Config) {
-        $h = Get-NcNextDnsHeaders $Config
-        if ($a.Kind -eq 'category') { $u = "$($Config.Dns.ApiBaseUrl.TrimEnd('/'))/profiles/$($Config.Dns.ProfileId)/parentalcontrol/categories/$($a.Id)" }
-        else { $u = "$($Config.Dns.ApiBaseUrl.TrimEnd('/'))/profiles/$($Config.Dns.ProfileId)/privacy/blocklists/$($a.Id)" }
-        Invoke-RestMethod -Method Patch -Uri $u -Headers $h -Body (@{active=$a.Active} | ConvertTo-Json) | Out-Null
-    }
+    $u = "$($Config.Dns.ApiBaseUrl.TrimEnd('/'))/profiles/$($Config.Dns.ProfileId)"
+    Invoke-RestMethod -Method Patch -Uri $u -Headers (Get-NcNextDnsHeaders $Config) -Body (Get-NcNextDnsProfilePayload $Config | ConvertTo-Json -Depth 8) | Out-Null
 }
 
 function Set-NcWindowsRemoteDns($Config) {
@@ -128,5 +133,5 @@ if ($MyInvocation.InvocationName -ne '.') {
 }
 
 if ($ExecutionContext.SessionState.Module) {
-    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
 }

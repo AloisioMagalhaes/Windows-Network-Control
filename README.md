@@ -312,6 +312,8 @@ O quinto incremento implementado contém:
 - affiliate/tracking links desativado por padrão;
 - teste automatizado para impedir desativação dos recursos obrigatórios.
 
+O sexto incremento implementa um payload único para a API de perfil NextDNS. Ele aplica inteligência de ameaças, blocklist recomendada, proteção nativa do Windows, rastreadores disfarçados, bloqueio de contorno, SafeSearch, pornografia e pirataria; links afiliados permanecem desativados. A API oficial suporta atualização parcial do perfil e esses campos são registrados no payload antes da chamada remota.
+
 O terceiro incremento implementado contém:
 
 - validação de perfil, API e endpoint DoH do NextDNS;
@@ -373,6 +375,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `e25eea8` | Migração para provedor DNS remoto NextDNS sem dependência local, API e plano DoH nativo | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente e no [Actions run 36566439511](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36566439511) | Execução do firewall continua local |
 | 2026-09-29 | `0440802` | Inclusão do perfil NextDNS `923be7`, endpoints DoH, DoT/QUIC, IPv6 e IP vinculado | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente e no [Actions run 36567012588](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567012588) | Execução do firewall continua local |
 | 2026-09-29 | `e60d0bb` | Política obrigatória de blocklists, inteligência de ameaças, proteção nativa e controle parental NextDNS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 13 testes, README validado e workflow aprovado | [Actions 36568158342](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36568158342) |
+| 2026-09-29 | `PENDENTE` | Payload completo de aplicação do perfil NextDNS via API | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 14 testes previstos; validação local após implementação | Execução remota pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
