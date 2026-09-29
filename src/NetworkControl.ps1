@@ -13,7 +13,7 @@ function Get-NcDefaultConfig {
     [pscustomobject]@{
         RulePrefix='NWC'
         BackupDirectory='backups'
-        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='SEU_PROFILE_ID';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
+        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
         AllowedPrograms=@()
         BlockedPrograms=@()
         BlockedServices=@()
@@ -40,8 +40,7 @@ function Test-NcConfig($Config) {
 
 function Get-NcRemoteDnsPlan($Config) {
     Test-NcConfig $Config | Out-Null
-    if ($Config.Dns.ProfileId -eq 'SEU_PROFILE_ID') { throw 'NextDNS ProfileId must be configured' }
-    [pscustomobject]@{Provider=$Config.Dns.Provider;Template=$Config.Dns.DohTemplate.Replace('{ProfileId}',$Config.Dns.ProfileId);BootstrapServers=@($Config.Dns.DohBootstrapServers)}
+    [pscustomobject]@{Provider=$Config.Dns.Provider;Mode=$Config.Dns.Mode;Template=$Config.Dns.DohTemplate.Replace('{ProfileId}',$Config.Dns.ProfileId);DotHostname=$Config.Dns.DotHostname.Replace('{ProfileId}',$Config.Dns.ProfileId);BootstrapServers=@($Config.Dns.DohBootstrapServers);Ipv6Servers=@($Config.Dns.Ipv6Servers);LinkedIpv4Servers=@($Config.Dns.LinkedIpv4Servers)}
 }
 
 function Get-NcNextDnsHeaders($Config) {
@@ -78,7 +77,8 @@ function Set-NcWindowsRemoteDns($Config) {
     $p = Get-NcRemoteDnsPlan $Config
     foreach ($s in $p.BootstrapServers) { Add-DnsClientDohServerAddress -ServerAddress $s -DohTemplate $p.Template -AllowFallbackToUdp $false -AutoUpgrade $true -ErrorAction SilentlyContinue }
     $a = @(Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | Select-Object -ExpandProperty ifIndex)
-    foreach ($i in $a) { Set-DnsClientServerAddress -InterfaceIndex $i -ServerAddresses $p.BootstrapServers }
+    $s = if ($Config.Dns.UseIpv6) { @($p.BootstrapServers + $p.Ipv6Servers) } else { $p.BootstrapServers }
+    foreach ($i in $a) { Set-DnsClientServerAddress -InterfaceIndex $i -ServerAddresses $s }
     $p
 }
 

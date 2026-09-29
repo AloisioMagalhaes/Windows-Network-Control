@@ -57,8 +57,8 @@ Describe 'NetworkControl' {
     }
 
     It 'gera plano DoH nativo sem dependência local' {
-        $p = Get-NcRemoteDnsPlan -Config ([pscustomobject]@{ BackupDirectory='C:\Backups'; Dns = [pscustomobject]@{ Provider='NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; DohBootstrapServers=@('45.90.28.0','45.90.30.0'); DohTemplate='https://dns.nextdns.io/{ProfileId}'; Categories=@() } })
-        if ($p.Provider -ne 'NextDNS' -or $p.Template -ne 'https://dns.nextdns.io/abc123' -or $p.BootstrapServers.Count -ne 2) { throw 'invalid remote DNS plan' }
+        $p = Get-NcRemoteDnsPlan -Config ([pscustomobject]@{ BackupDirectory='C:\Backups'; Dns = [pscustomobject]@{ Provider='NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; Mode='DoH'; DohBootstrapServers=@('45.90.28.0','45.90.30.0'); DohTemplate='https://dns.nextdns.io/{ProfileId}'; DotHostname='{ProfileId}.dns.nextdns.io'; Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7'); LinkedIpv4Servers=@('45.90.28.212','45.90.30.212'); Categories=@() } })
+        if ($p.Provider -ne 'NextDNS' -or $p.Template -ne 'https://dns.nextdns.io/abc123' -or $p.DotHostname -ne 'abc123.dns.nextdns.io' -or $p.BootstrapServers.Count -ne 2 -or $p.Ipv6Servers.Count -ne 2 -or $p.LinkedIpv4Servers.Count -ne 2) { throw 'invalid remote DNS plan' }
     }
 
     It 'mapeia categorias suportadas para ações da API remota' {

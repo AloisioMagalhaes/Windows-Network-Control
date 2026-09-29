@@ -44,6 +44,51 @@ NextDNS será o primeiro adaptador remoto. A lista Free-for-Dev registra 300 mil
 
 Referências: https://github.com/ripienaar/free-for-dev, https://nextdns.github.io/api/, https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress
 
+### Perfil configurado no MVP
+
+O arquivo `config/example.json` usa o perfil remoto `923be7`:
+
+| Transporte | Configuração |
+|---|---|
+| DNS over HTTPS | `https://dns.nextdns.io/923be7` |
+| DNS over TLS/QUIC | `923be7.dns.nextdns.io` |
+| IPv6 primário | `2a07:a8c0::92:3be7` |
+| IPv6 secundário | `2a07:a8c1::92:3be7` |
+| IPv4 bootstrap DoH | `45.90.28.0`, `45.90.30.0` |
+| IPv4 com IP vinculado | `45.90.28.212`, `45.90.30.212` |
+
+Os endereços com IP vinculado somente deverão ser usados depois que o IP público da rede estiver associado ao perfil NextDNS. Para computadores móveis, o MVP prioriza DoH por perfil. O perfil e seus limites devem ser confirmados antes de cada release.
+
+### Configuração nativa no Windows 11
+
+O modo padrão do projeto é DoH sem instalação de aplicativo:
+
+1. Abra **Configurações** → **Rede e Internet**.
+2. Selecione **Wi-Fi** ou **Ethernet**.
+3. Abra **Propriedades de hardware** ou avance diretamente em Ethernet.
+4. Em **Atribuição de servidor DNS**, selecione **Editar** e depois **Manual**.
+5. Ative IPv4.
+6. Informe `45.90.28.0` como DNS preferencial, ative DoH e use o modelo `https://dns.nextdns.io/923be7`.
+7. Informe `45.90.30.0` como DNS alternativo, ative DoH e use o mesmo modelo.
+8. Salve.
+
+O script automatiza essa configuração quando executado como Administrador e quando os cmdlets nativos de DoH estiverem disponíveis.
+
+### Configuração dos navegadores
+
+Para evitar que um navegador use um resolvedor diferente do Windows, configure o mesmo endpoint personalizado:
+
+- Chrome: **Configurações** → **Privacidade e segurança** → **Segurança** → **Usar DNS seguro** → provedor personalizado.
+- Edge: **Configurações** → **Privacidade, pesquisa e serviços** → **Usar DNS seguro** → provedor personalizado.
+- Brave: **Configurações** → **Privacidade e segurança** → **Segurança** → **Usar DNS seguro** → provedor personalizado.
+- Firefox: **Configurações** → **Privacidade e segurança** → **DNS sobre HTTPS** → **Personalizado**.
+
+Em todos os casos, use `https://dns.nextdns.io/923be7`.
+
+### IPv6 e roteador
+
+Em redes com IPv6, configure no roteador `2a07:a8c0::92:3be7` e `2a07:a8c1::92:3be7`. Se a interface não aceitar a forma abreviada, use `2a07:a8c0:0000:0000:0000:0000:0092:3be7` e `2a07:a8c1:0000:0000:0000:0000:0092:3be7`. O acesso ao roteador e a alteração de DNS são responsabilidades do usuário e não são executados pelo GitHub Actions.
+
 O perfil NextDNS deverá ser criado pelo usuário. A chave ficará somente em `NEXTDNS_API_KEY` ou mecanismo equivalente de segredo. Ela nunca deverá ser gravada no repositório, no arquivo de configuração ou nos logs.
 
 O projeto deverá abstrair o provedor por adaptador, mas não poderá considerar gratuito, remoto ou filtrável um provedor sem comprovação atual de API, limites e categorias.
@@ -233,6 +278,13 @@ O segundo incremento implementado contém:
 - plano de configuração DNS remoto sem dependência local;
 - configuração nativa do Windows para DoH.
 
+O quarto incremento implementado contém:
+
+- perfil `923be7` no arquivo de exemplo;
+- endpoint DoH, hostname DoT/QUIC, IPv6 e servidores IPv4 vinculados;
+- seleção opcional de IPv6 na configuração nativa do Windows;
+- plano remoto validado por testes para todos os transportes informados.
+
 O terceiro incremento implementado contém:
 
 - validação de perfil, API e endpoint DoH do NextDNS;
@@ -292,6 +344,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `9b40f96` | Automação de testes, logs, simulação e releases via GitHub Actions | `README.md`, `.github/workflows/verify.yml` | 9 testes aprovados localmente | Execução do workflow depende do GitHub Actions |
 | 2026-09-29 | `125e0e7` | Compatibilidade dos testes com Pester local e runner do GitHub Actions | `src/NetworkControl.psm1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados localmente e no GitHub Actions: [run 36565772559](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36565772559) | Execução de firewall continua local |
 | 2026-09-29 | `e25eea8` | Migração para provedor DNS remoto NextDNS sem dependência local, API e plano DoH nativo | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente e no [Actions run 36566439511](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36566439511) | Execução do firewall continua local |
+| 2026-09-29 | `PENDENTE` | Inclusão do perfil NextDNS `923be7`, endpoints DoH, DoT/QUIC, IPv6 e IP vinculado | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente | Execução remota pendente |
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
 
