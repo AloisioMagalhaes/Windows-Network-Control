@@ -15,6 +15,8 @@ $r = @(
 )
 $e = @($r | Where-Object { $t -notmatch [regex]::Escape($_.P) })
 if ($e) { $e | ForEach-Object { Write-Error "README requirement missing: $($_.N)" }; exit 1 }
+if ($t -notmatch 'releases/download/v0\.1\.9/Windows-Network-Control-v0\.1\.9\.zip') { throw 'remote release command version is outdated' }
+if ($t -notmatch 'db6555758e750f3513effc5b8db1b1bfaaa3cd4b1b8bc582841743276684584c') { throw 'remote release command hash is outdated' }
 $n = ([regex]::Matches($t, '(?m)^\| 20\d\d-\d\d-\d\d \|')).Count
 if ($n -lt 1) { Write-Error 'README change log is empty'; exit 1 }
 "README validation passed: $($r.Count) requirements, $n change-log entries"
