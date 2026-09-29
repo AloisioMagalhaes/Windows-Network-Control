@@ -192,6 +192,22 @@ Permitir restaurar o backup ou remover exclusivamente as regras criadas pelo sis
 
 Executar repetidamente sem duplicar regras nem alterar configurações fora do escopo.
 
+### RF18 — DoH obrigatório no Windows
+
+Configurar os servidores `45.90.28.0` e `45.90.30.0` com o modelo DoH do perfil `923be7`, sem fallback UDP, quando o modo `ConfigureDns` for executado como Administrador.
+
+### RF19 — Políticas de navegadores
+
+Administradores deverão poder impor o endpoint `https://dns.nextdns.io/923be7` como DNS seguro obrigatório em Chrome, Edge, Brave e Firefox. O MVP deverá documentar políticas centralizadas por Diretiva de Grupo ou Intune; a ausência dessas políticas deverá ser registrada como limitação.
+
+### RF20 — Bloqueio de contorno
+
+Bloquear ou restringir DNS externo UDP/TCP 53, DNS-over-TLS TCP 853, provedores DoH não autorizados, VPN, proxy e Tor, preservando exceções administrativas documentadas.
+
+### RF21 — Implantação rastreável
+
+Permitir execução por terminal administrativo em cada computador, validar o artefato por SHA-256, registrar transcript local e identificar o dispositivo no perfil NextDNS por nome compatível com a política do provedor.
+
 ## 6. Requisitos não funcionais
 
 - Compatibilidade com Windows PowerShell 5.1.
@@ -269,6 +285,10 @@ CHANGELOG.md
 - Navegadores e componentes essenciais permanecem funcionais por padrão.
 - Processos e serviços cadastrados são bloqueados nas direções configuradas.
 - Logs não expõem segredos.
+- O modo `ConfigureDns` funciona sem API key e não altera o firewall.
+- O modo `Apply` exige API key, privilégios administrativos e backup anterior.
+- Os navegadores administrados não podem selecionar livremente outro provedor DoH quando as políticas estiverem aplicadas.
+- Cada computador pode ser associado a um nome observável nos registros NextDNS.
 
 ## 12. Entrega
 
@@ -284,7 +304,7 @@ A release deverá conter:
 
 ## 13. Critério de conclusão
 
-O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, bloquear as categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos.
+O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, configurar DoH sem API key, orientar políticas dos quatro navegadores, bloquear as categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos. A aplicação centralizada das políticas de navegador e a distribuição em massa permanecem critérios de aceitação da implantação institucional, não funcionalidades concluídas do script atual.
 
 ## 14. Desenvolvimento atual
 
@@ -396,6 +416,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `a93b822` | Payload completo de aplicação do perfil NextDNS via API | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 14 testes, README validado e workflow aprovado | [Actions 36568433301](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36568433301) |
 | 2026-09-29 | `f2d3ce3` | Modo ConfigureDns para automatizar DoH local sem API key | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 15 testes, README validado e workflow aprovado | [Actions 36572548867](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36572548867) |
 | 2026-09-29 | `97db1a2` | Documentação do segredo `NEXTDNS_API_KEY` e validação do repositório para nova release | `README.md` | 15 testes, README validado, segredo presente no GitHub e workflow aprovado | [Actions 36573070752](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36573070752) |
+| 2026-09-29 | `PENDENTE` | Atualização do PRD para implantação em computadores de alunos e políticas DoH dos navegadores | `README.md` | Validação local pendente | Execução remota pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
