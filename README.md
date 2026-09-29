@@ -110,6 +110,16 @@ Em redes com IPv6, configure no roteador `2a07:a8c0::92:3be7` e `2a07:a8c1::92:3
 
 O perfil NextDNS deverá ser criado pelo usuário. A chave ficará somente em `NEXTDNS_API_KEY` ou mecanismo equivalente de segredo. Ela nunca deverá ser gravada no repositório, no arquivo de configuração ou nos logs.
 
+### Segredo do NextDNS
+
+O segredo do repositório foi validado com o nome `NEXTDNS_API_KEY` em **Settings → Secrets and variables → Actions**. O valor nunca é exibido, lido ou gravado por este projeto. Para execução local, configure a mesma variável no perfil do usuário e abra um novo PowerShell:
+
+```powershell
+[Environment]::SetEnvironmentVariable('NEXTDNS_API_KEY','SUA_CHAVE','User')
+```
+
+O modo `ConfigureDns` não exige essa chave. O modo `Apply` exige a variável para sincronizar a política remota do perfil `923be7`.
+
 O projeto deverá abstrair o provedor por adaptador, mas não poderá considerar gratuito, remoto ou filtrável um provedor sem comprovação atual de API, limites e categorias.
 
 ## 5. Requisitos funcionais
@@ -385,6 +395,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `e60d0bb` | Política obrigatória de blocklists, inteligência de ameaças, proteção nativa e controle parental NextDNS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 13 testes, README validado e workflow aprovado | [Actions 36568158342](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36568158342) |
 | 2026-09-29 | `a93b822` | Payload completo de aplicação do perfil NextDNS via API | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 14 testes, README validado e workflow aprovado | [Actions 36568433301](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36568433301) |
 | 2026-09-29 | `f2d3ce3` | Modo ConfigureDns para automatizar DoH local sem API key | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 15 testes, README validado e workflow aprovado | [Actions 36572548867](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36572548867) |
+| 2026-09-29 | `PENDENTE` | Documentação do segredo `NEXTDNS_API_KEY` e validação do repositório para nova release | `README.md` | 15 testes e segredo presente no GitHub | Release pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
