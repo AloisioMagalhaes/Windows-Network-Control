@@ -215,3 +215,23 @@ A release deverá conter:
 ## 13. Critério de conclusão
 
 O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, bloquear as categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos.
+
+## 14. Desenvolvimento atual
+
+O primeiro incremento implementado contém:
+
+- configuração de exemplo;
+- validação de categorias DNS;
+- nomes estáveis para regras gerenciadas;
+- modo de simulação;
+- consulta de status;
+- listagem e remoção de regras próprias;
+- testes automatizados com Pester 3.4 ou superior.
+
+Execute os testes com:
+
+```powershell
+Invoke-Pester .\tests\NetworkControl.Tests.ps1 -PassThru
+```
+
+O modo `Apply` ainda exige `-ConfirmApply` e o backup, a integração efetiva com a API DNS e a restauração serão implementados nos próximos ciclos TDD.

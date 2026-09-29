@@ -1,0 +1,16 @@
+{
+  "RulePrefix": "NWC",
+  "Dns": {
+    "Provider": "CleanBrowsing",
+    "Categories": ["advertising_tracking", "adult", "torrents", "p2p_file_sharing", "gaming", "proxy_vpn"]
+  },
+  "AllowedPrograms": [],
+  "BlockedPrograms": [],
+  "BlockedServices": [],
+  "BlockedPorts": [],
+  "Exceptions": {
+    "AllowBrowsers": true,
+    "AllowWindowsCore": true,
+    "AllowUpdates": true
+  }
+}
