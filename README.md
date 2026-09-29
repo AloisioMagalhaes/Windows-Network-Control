@@ -2,23 +2,23 @@
 
 ## 1. Objetivo
 
-Criar um repositório cujo artefato principal seja um script PowerShell para controlar o acesso de rede no Windows Defender Firewall e aplicar filtragem DNS por API.
+Criar um script PowerShell rastreável para configurar o DNS-over-HTTPS nativo do Windows, administrar um perfil NextDNS por API e aplicar uma política inicial do Windows Defender Firewall.
 
-O sistema deverá bloquear conexões de entrada e saída por padrão, preservar componentes essenciais do Windows e permitir somente aplicações, serviços, domínios e recursos explicitamente autorizados.
+O estado atual é um MVP administrativo: ele configura DoH, sincroniza a política remota quando há API key, exporta backup e ajusta as ações padrão dos perfis do firewall. Ele ainda não implementa uma allowlist completa de aplicações, políticas automáticas de navegadores ou detecção genérica de virtualização.
 
 ## 2. Escopo
 
-O projeto deverá:
+O escopo planejado inclui:
 
 - Configurar os perfis Domínio, Privado e Público.
 - Definir bloqueio padrão para entrada e saída.
-- Criar regras locais para processos, serviços, portas, protocolos, endereços IP, domínios resolvidos e interfaces de rede.
+- Criar regras locais para processos, serviços, portas, protocolos, endereços IP, domínios resolvidos e interfaces de rede (planejado; não entregue integralmente no MVP atual).
 - Bloquear aplicações não essenciais cadastradas pelo usuário.
 - Bloquear navegadores somente quando explicitamente configurado; navegadores deverão permanecer permitidos por padrão.
 - Bloquear torrent, pornografia, anúncios, rastreadores e jogos online por filtragem DNS categorizada.
 - Bloquear emuladores e aplicações relacionadas por executável, serviço, driver, porta, endereço IP ou interface de rede conhecida.
 - Permitir listas de inclusão e exclusão.
-- Registrar todas as alterações e permitir reversão segura.
+- Registrar alterações e permitir reversão segura. No MVP atual, a auditoria detalhada ainda é limitada ao transcript do operador e aos logs do workflow.
 
 ## 3. Limitações técnicas
 
@@ -26,7 +26,8 @@ O projeto deverá:
 - O bloqueio de emuladores deverá usar processos, serviços, drivers, interfaces, portas, endereços IP e caminhos conhecidos.
 - DNS bloqueia domínios, não processos locais, virtualização ou todo tráfego criptografado.
 - Domínios novos, CDNs compartilhadas, VPNs, DoH, DoT e endereços IP diretos podem contornar filtros DNS.
-- O bloqueio por domínio deverá ser implementado pelo provedor DNS ou por resolução controlada; regras nativas do firewall deverão ser usadas para controles locais.
+- O bloqueio por domínio é realizado pelo perfil NextDNS; o script não inspeciona o conteúdo das conexões nem identifica processos a partir de consultas DNS.
+- O modo `Apply` altera ações padrão dos perfis do firewall, mas não cria automaticamente uma allowlist completa de aplicações.
 
 ## 4. Provedor DNS remoto
 
@@ -134,7 +135,7 @@ Exportar a configuração atual do firewall antes de qualquer alteração.
 
 ### RF03 — Aplicação
 
-Aplicar as políticas de bloqueio aos perfis Domínio, Privado e Público.
+No MVP, aplicar ações padrão de bloqueio aos perfis Domínio, Privado e Público. Regras granulares de programas e serviços permanecem evolução planejada.
 
 ### RF04 — Regras próprias
 
@@ -142,15 +143,15 @@ Identificar todas as regras criadas pelo sistema com prefixo exclusivo e metadad
 
 ### RF05 — Processos
 
-Permitir bloquear executáveis por caminho absoluto e validar se o arquivo existe antes de criar a regra.
+Planejar bloqueio de executáveis por caminho absoluto e validação do arquivo. Esta capacidade não está completa no script atual.
 
 ### RF06 — Serviços e drivers
 
-Permitir cadastrar serviços, drivers e componentes associados a emuladores e plataformas de virtualização.
+Planejar cadastro de serviços, drivers e componentes associados a emuladores e plataformas de virtualização. Não é aplicado automaticamente no MVP atual.
 
 ### RF07 — Emuladores
 
-Incluir configuração para aplicações como BlueStacks, Android Studio Emulator, VirtualBox, VMware, Hyper-V, WSL e Windows Subsystem for Android, sem presumir que estejam instaladas.
+Manter uma lista configurável futura para aplicações como BlueStacks, Android Studio Emulator, VirtualBox, VMware, Hyper-V, WSL e Windows Subsystem for Android, sem presumir instalação. A identificação automática ainda não foi entregue.
 
 ### RF08 — Rede
 
@@ -158,15 +159,15 @@ Permitir regras por direção, protocolo, porta, endereço remoto, endereço loc
 
 ### RF09 — DNS
 
-Configurar o provedor DNS selecionado, autenticar a API com segredo fornecido pelo usuário e aplicar categorias configuradas.
+Configurar o endpoint DoH nativo sem API key no modo `ConfigureDns`; no modo `Apply`, autenticar a API com `NEXTDNS_API_KEY` e enviar o payload de segurança, privacidade e controle parental configurado.
 
 ### RF10 — Categorias
 
-Permitir ativar ou desativar independentemente as categorias de anúncios, rastreadores, pornografia, torrent, P2P, jogos online, proxy, VPN e malware.
+Enviar ao NextDNS a blocklist recomendada, inteligência de ameaças, proteção nativa, rastreadores disfarçados, SafeSearch, bloqueio de bypass, pornografia e pirataria. Jogos, processos, emuladores e VPNs locais ainda não possuem implementação granular completa.
 
 ### RF11 — Exceções
 
-Permitir exceções para Windows, navegadores, atualizações, DNS, DHCP, NTP, segurança, gerenciamento, domínios confiáveis, executáveis confiáveis e serviços essenciais.
+Preservar a configuração declarada de exceções no arquivo de exemplo; a aplicação granular dessas exceções no firewall permanece pendente.
 
 ### RF12 — Simulação
 
@@ -178,7 +179,7 @@ Validar privilégios, perfis, caminhos, serviços, parâmetros, conectividade DN
 
 ### RF14 — Auditoria
 
-Gerar log local com data, operação, regra, resultado e erro, sem registrar chaves de API ou informações sensíveis.
+Gerar transcript ou log operacional quando executado pelo operador ou workflow, sem registrar chaves de API. Auditoria detalhada por regra será implementada junto às regras granulares.
 
 ### RF15 — Consulta
 
@@ -226,6 +227,7 @@ O script deverá oferecer operações equivalentes a:
 
 ```powershell
 .\NetworkControl.ps1 -Mode Simulate
+.\NetworkControl.ps1 -Mode ConfigureDns -ConfirmApply
 .\NetworkControl.ps1 -Mode Apply
 .\NetworkControl.ps1 -Mode Status
 .\NetworkControl.ps1 -Mode ListRules
@@ -283,7 +285,7 @@ CHANGELOG.md
 - As categorias DNS configuradas são enviadas corretamente à API.
 - Falhas da API não removem regras já existentes.
 - Navegadores e componentes essenciais permanecem funcionais por padrão.
-- Processos e serviços cadastrados são bloqueados nas direções configuradas.
+- Processos e serviços cadastrados serão bloqueados nas direções configuradas quando essa funcionalidade estiver implementada.
 - Logs não expõem segredos.
 - O modo `ConfigureDns` funciona sem API key e não altera o firewall.
 - O modo `Apply` exige API key, privilégios administrativos e backup anterior.
@@ -308,51 +310,36 @@ O projeto será considerado concluído quando o script puder criar backup, simul
 
 ## 14. Desenvolvimento atual
 
-O primeiro incremento implementado contém:
+### Entregue e utilizável
 
-- configuração de exemplo;
-- validação de categorias DNS;
-- nomes estáveis para regras gerenciadas;
-- modo de simulação;
-- consulta de status;
-- listagem e remoção de regras próprias;
-- testes automatizados com Pester 3.4 ou superior.
+- configuração declarativa do perfil NextDNS `923be7`;
+- validação de categorias, endpoints HTTPS e configuração;
+- modo `Simulate`, sem alteração do sistema;
+- modo `ConfigureDns`, que configura DoH nativo do Windows sem API key;
+- modo `Apply`, que cria backup, ajusta ações padrão do firewall, sincroniza o payload NextDNS e configura DoH;
+- modos `Status`, `ListRules`, `Restore` e `RemoveManagedRules`;
+- autenticação da API somente por `NEXTDNS_API_KEY`;
+- testes Pester e validação automatizada do README;
+- empacotamento e publicação por GitHub Actions com checksum SHA-256.
 
-O segundo incremento implementado contém:
+### Parcial ou dependente de configuração externa
 
-- diretório de backup configurável;
-- exportação automática da configuração do firewall antes de `Apply`;
-- restauração por arquivo `.wfw`;
-- validação de perfil NextDNS e endpoint DoH com HTTPS;
-- plano de configuração DNS remoto sem dependência local;
-- configuração nativa do Windows para DoH.
+- identificação do dispositivo depende de nome no endpoint DoH;
+- categorias, blocklists e controles parentais são aplicados pelo perfil remoto NextDNS;
+- políticas de Chrome, Edge, Brave e Firefox precisam ser aplicadas por GPO, Intune ou configuração manual;
+- bloqueio de contorno depende do recurso NextDNS e não substitui regras locais;
+- observabilidade detalhada depende dos logs do NextDNS e do transcript do operador.
 
-O quarto incremento implementado contém:
+### Ainda não entregue
 
-- perfil `923be7` no arquivo de exemplo;
-- endpoint DoH, hostname DoT/QUIC, IPv6 e servidores IPv4 vinculados;
-- seleção opcional de IPv6 na configuração nativa do Windows;
-- plano remoto validado por testes para todos os transportes informados.
+- allowlist granular de aplicações no firewall;
+- bloqueio automático por processo, serviço, driver ou emulador;
+- detecção genérica de virtualização;
+- bloqueio local completo de DNS externo, DoT, DoH alternativo, VPN, proxy e Tor;
+- distribuição em massa para todos os computadores da sala;
+- política automática dos navegadores pelo próprio script.
 
-O quinto incremento implementado contém:
-
-- política declarativa de recursos obrigatórios do NextDNS;
-- bloqueio obrigatório de anúncios, rastreadores, ameaças, pornografia e pirataria;
-- SafeSearch e métodos de contorno documentados como requisitos;
-- affiliate/tracking links desativado por padrão;
-- teste automatizado para impedir desativação dos recursos obrigatórios.
-
-O sexto incremento implementa um payload único para a API de perfil NextDNS. Ele aplica inteligência de ameaças, blocklist recomendada, proteção nativa do Windows, rastreadores disfarçados, bloqueio de contorno, SafeSearch, pornografia e pirataria; links afiliados permanecem desativados. A API oficial suporta atualização parcial do perfil e esses campos são registrados no payload antes da chamada remota.
-
-O sétimo incremento adiciona o modo `ConfigureDns`, que automatiza somente o DoH nativo do Windows e não exige `NEXTDNS_API_KEY`. O modo `Apply` continua reservado à aplicação integrada do firewall e à sincronização da política remota via API.
-
-O terceiro incremento implementado contém:
-
-- validação de perfil, API e endpoint DoH do NextDNS;
-- plano de ações remoto para categoria adulta e bloqueio de anúncios/rastreadores;
-- autenticação da API exclusivamente por variável de ambiente;
-- configuração dos servidores DNS nativos do Windows 11;
-- 12 testes TDD aprovados localmente.
+O próximo incremento deve implementar políticas de navegador e regras locais de contorno somente após testes de reversão, preservação das exceções do Windows e validação em computador de laboratório.
 
 Execute os testes com:
 
@@ -418,6 +405,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `97db1a2` | Documentação do segredo `NEXTDNS_API_KEY` e validação do repositório para nova release | `README.md` | 15 testes, README validado, segredo presente no GitHub e workflow aprovado | [Actions 36573070752](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36573070752) |
 | 2026-09-29 | `1004adf` | Atualização do PRD para implantação em computadores de alunos e políticas DoH dos navegadores | `README.md` | README validado e workflow aprovado | [Actions 36573968150](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36573968150) |
 | 2026-09-29 | `b522944` | Correção de escopo: políticas de navegador e bloqueio local de contorno marcados como pendentes | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36574541447](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36574541447) |
+| 2026-09-29 | `PENDENTE` | Revisão completa do PRD contra o comportamento real do script e reorganização do desenvolvimento atual | `README.md` | Validação local pendente | Execução remota pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
