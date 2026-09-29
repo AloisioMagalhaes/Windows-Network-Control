@@ -17,8 +17,8 @@ $e = @($r | Where-Object { $t -notmatch [regex]::Escape($_.P) })
 if ($e) { $e | ForEach-Object { Write-Error "README requirement missing: $($_.N)" }; exit 1 }
 if ($t -notmatch 'api\.github\.com/repos/AloisioMagalhaes/Windows-Network-Control/releases/latest') { throw 'remote release command does not resolve latest release' }
 if ($t -notmatch 'browser_download_url') { throw 'remote release command does not use published assets' }
-if ($t -notmatch 'scriptblock::Create\(\(irm') { throw 'one-line remote bootstrap command is missing' }
-if ($t -notmatch 'v0\.1\.15/tools/Invoke-RemoteRelease\.ps1') { throw 'remote bootstrap must use a fixed release tag' }
+if ($t -notmatch '\[scriptblock\]::Create\(\(irm') { throw 'one-line remote bootstrap command is missing' }
+if ($t -notmatch 'v\d+\.\d+\.\d+/tools/Invoke-RemoteRelease\.ps1') { throw 'remote bootstrap must use a fixed release tag' }
 $n = ([regex]::Matches($t, '(?m)^\| 20\d\d-\d\d-\d\d \|')).Count
 if ($n -lt 1) { Write-Error 'README change log is empty'; exit 1 }
 "README validation passed: $($r.Count) requirements, $n change-log entries"
