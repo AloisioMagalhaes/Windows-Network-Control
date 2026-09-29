@@ -82,4 +82,9 @@ Describe 'NetworkControl' {
     It 'oferece modo de configuração DoH sem API key' {
         if ((Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw) -notmatch "ConfigureDns") { throw 'ConfigureDns mode missing' }
     }
+
+    It 'preserva saída padrão para evitar perda de serviços essenciais' {
+        $p = Get-NcSafeFirewallPolicy (Get-NcDefaultConfig)
+        if ($p.Inbound -ne 'Block' -or $p.Outbound -ne 'Allow') { throw 'unsafe firewall baseline' }
+    }
 }

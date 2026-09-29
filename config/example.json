@@ -1,6 +1,10 @@
 {
   "RulePrefix": "NWC",
   "BackupDirectory": "backups",
+  "Firewall": {
+    "DefaultInboundAction": "Block",
+    "DefaultOutboundAction": "Allow"
+  },
   "Dns": {
     "Provider": "NextDNS",
     "ProfileId": "923be7",

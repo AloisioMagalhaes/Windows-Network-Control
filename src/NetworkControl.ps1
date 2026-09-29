@@ -13,6 +13,7 @@ function Get-NcDefaultConfig {
     [pscustomobject]@{
         RulePrefix='NWC'
         BackupDirectory='backups'
+        Firewall=[pscustomobject]@{DefaultInboundAction='Block';DefaultOutboundAction='Allow'}
         Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;MandatoryFeatures=[pscustomobject]@{AdsTrackersBlocklist=$true;ThreatIntelligenceFeeds=$true;NativeTrackingProtection=$true;DisguisedThirdPartyTrackers=$true;BlockBypassMethods=$true;PornCategory=$true;PiracyCategory=$true;SafeSearch=$true;YouTubeRestrictedMode=$true;AllowAffiliateTrackingLinks=$false};NextDnsCategories=@('porn','piracy','gambling','dating','gaming','social-networks','video-streaming');NextDnsServices=@();Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
         AllowedPrograms=@()
         BlockedPrograms=@()
@@ -77,6 +78,11 @@ function Get-NcNextDnsProfilePayload($Config) {
     @{security=@{threatIntelligenceFeeds=$true;aiThreatDetection=$true;googleSafeBrowsing=$true;cryptojacking=$true;dnsRebinding=$true;idnHomographs=$true;typosquatting=$true;dga=$true;nrd=$true;ddns=$true;parking=$true;csam=$true};privacy=@{blocklists=@(@{id='nextdns-recommended'});natives=@(@{id='windows'});disguisedTrackers=$true;allowAffiliate=$false};parentalControl=@{services=$s;categories=$c;safeSearch=$true;youtubeRestrictedMode=$true;blockBypass=$true};settings=@{logs=@{enabled=$true;drop=@{ip=$true;domain=$false}};blockPage=@{enabled=$true};performance=@{cnameFlattening=$true}}}
 }
 
+function Get-NcSafeFirewallPolicy($Config) {
+    $f = $Config.Firewall
+    [pscustomobject]@{Inbound=if ($f.DefaultInboundAction) { $f.DefaultInboundAction } else { 'Block' };Outbound=if ($f.DefaultOutboundAction) { $f.DefaultOutboundAction } else { 'Allow' }}
+}
+
 function Invoke-NcNextDnsProfile($Config) {
     $u = "$($Config.Dns.ApiBaseUrl.TrimEnd('/'))/profiles/$($Config.Dns.ProfileId)"
     Invoke-RestMethod -Method Patch -Uri $u -Headers (Get-NcNextDnsHeaders $Config) -Body (Get-NcNextDnsProfilePayload $Config | ConvertTo-Json -Depth 8) | Out-Null
@@ -123,7 +129,8 @@ function Invoke-Nc([string]$Mode,$Config) {
             if (!$ConfirmApply) { throw 'Apply requires -ConfirmApply' }
             Export-NcFirewallBackup $Config | Out-Null
             Invoke-NcNextDnsProfile $Config
-            Get-NetFirewallProfile | Set-NetFirewallProfile -DefaultInboundAction Block -DefaultOutboundAction Block
+            $p = Get-NcSafeFirewallPolicy $Config
+            Get-NetFirewallProfile | Set-NetFirewallProfile -DefaultInboundAction $p.Inbound -DefaultOutboundAction $p.Outbound
             Set-NcWindowsRemoteDns $Config | Out-Null
         }
         RemoveManagedRules { Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object DisplayName -like "$($Config.RulePrefix)-*" | Remove-NetFirewallRule }
@@ -137,5 +144,5 @@ if ($MyInvocation.InvocationName -ne '.') {
 }
 
 if ($ExecutionContext.SessionState.Module) {
-    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Get-NcSafeFirewallPolicy,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
 }
