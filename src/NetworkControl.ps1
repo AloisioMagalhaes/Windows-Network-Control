@@ -11,7 +11,7 @@ $script:NcCategories = @('advertising_tracking','adult','torrents','p2p_file_sha
 function Get-NcDefaultConfig {
     [pscustomobject]@{
         RulePrefix='NWC'
-        Dns=[pscustomobject]@{Provider='CleanBrowsing';Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
+        Dns=[pscustomobject]@{Provider='Technitium';Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
         AllowedPrograms=@()
         BlockedPrograms=@()
         BlockedServices=@()
@@ -25,7 +25,7 @@ function Get-NcRuleName([string]$Kind,[string]$Value) {
 }
 
 function Test-NcConfig($Config) {
-    if (!$Config.Dns.Provider) { throw 'DNS provider is required' }
+    if ($Config.Dns.Provider -notin @('Technitium','AdGuardHome','Pi-hole')) { throw 'DNS provider must be a self-hosted open-source provider' }
     $bad = @($Config.Dns.Categories | Where-Object { $_ -notin $script:NcCategories })
     if ($bad) { throw "Unsupported DNS category: $($bad -join ', ')" }
     $true

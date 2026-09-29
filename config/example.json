@@ -1,7 +1,7 @@
 {
   "RulePrefix": "NWC",
   "Dns": {
-    "Provider": "CleanBrowsing",
+    "Provider": "Technitium",
     "Categories": ["advertising_tracking", "adult", "torrents", "p2p_file_sharing", "gaming", "proxy_vpn"]
   },
   "AllowedPrograms": [],

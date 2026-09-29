@@ -32,25 +32,24 @@ O projeto deverá:
 
 O sistema deverá permitir configurar um provedor via arquivo de configuração ou parâmetros do script.
 
-### Provedor recomendado
+### Requisito de custo e licença
 
-CleanBrowsing, por oferecer API documentada e categorias para:
+O provedor DNS deverá ser 100% gratuito para uso local, sem assinatura obrigatória, sem limite artificial de consultas e preferencialmente publicado como software livre ou código aberto.
 
-- publicidade e rastreamento;
-- conteúdo adulto;
-- torrents e compartilhamento P2P;
-- jogos online;
-- proxies e VPNs.
+O projeto não deverá depender de uma API SaaS paga. A API deverá ser executada em uma instância controlada pelo usuário, na rede local ou no próprio computador, sem envio obrigatório de consultas ou chaves para terceiros.
 
-Documentação: https://cleanbrowsing.org/api/
+### Provedor principal
 
-### Alternativas
+Technitium DNS Server deverá ser a integração principal por ser gratuito, open source sob GPLv3, compatível com Windows e possuir API HTTP para configuração. A filtragem deverá usar DNSBL, listas de bloqueio e regras locais.
 
-- NextDNS: https://nextdns.github.io/api/
-- Cloudflare Gateway: https://developers.cloudflare.com/api/resources/zero_trust/subresources/gateway/
-- Control D: https://docs.controld.com/reference/get-started
+Documentação: https://technitium.com/dns/
 
-O projeto deverá abstrair o provedor para permitir substituição futura sem alterar o núcleo do firewall.
+### Alternativas open source
+
+- AdGuard Home: https://github.com/AdguardTeam/AdGuardHome
+- Pi-hole: https://docs.pi-hole.net/api/
+
+O projeto deverá abstrair o provedor por meio de um adaptador para permitir substituição sem alterar o núcleo do firewall.
 
 ## 5. Requisitos funcionais
 

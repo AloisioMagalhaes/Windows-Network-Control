@@ -6,12 +6,18 @@ Describe 'NetworkControl' {
     }
 
     It 'aceita categorias DNS suportadas' {
-        { Test-NcConfig -Config @{ Dns = @{ Provider = 'CleanBrowsing'; Categories = @('adult','torrents') } } } | Should Not Throw
+        { Test-NcConfig -Config @{ Dns = @{ Provider = 'Technitium'; Categories = @('adult','torrents') } } } | Should Not Throw
     }
 
     It 'rejeita categoria DNS desconhecida' {
         $threw = $false
-        try { Test-NcConfig -Config @{ Dns = @{ Provider = 'CleanBrowsing'; Categories = @('unknown') } } } catch { $threw = $true }
+        try { Test-NcConfig -Config @{ Dns = @{ Provider = 'Technitium'; Categories = @('unknown') } } } catch { $threw = $true }
+        $threw | Should Be $true
+    }
+
+    It 'rejeita provedor pago ou não auto-hospedado' {
+        $threw = $false
+        try { Test-NcConfig -Config @{ Dns = @{ Provider = 'CleanBrowsing'; Categories = @() } } } catch { $threw = $true }
         $threw | Should Be $true
     }
 
