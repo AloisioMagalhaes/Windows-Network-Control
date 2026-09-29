@@ -234,3 +234,26 @@ Invoke-Pester .\tests\NetworkControl.Tests.ps1 -PassThru
 ```
 
 O modo `Apply` ainda exige `-ConfirmApply` e o backup, a integração efetiva com a API DNS e a restauração serão implementados nos próximos ciclos TDD.
+
+## 15. Rastreabilidade obrigatória antes do merge
+
+Toda alteração no repositório deverá ser documentada no `README.md` antes de ser incorporada à branch principal `main`.
+
+O fluxo obrigatório será:
+
+1. Criar uma Issue descrevendo o objetivo e o requisito relacionado.
+2. Criar uma branch de trabalho a partir de `main`.
+3. Implementar a alteração seguindo TDD quando houver comportamento novo.
+4. Executar os testes e registrar o resultado no Pull Request.
+5. Atualizar esta seção do `README.md` com a alteração, os arquivos afetados, os testes executados e as limitações conhecidas.
+6. Revisar o Pull Request e confirmar que a documentação corresponde ao código.
+7. Fazer o merge somente após os testes aprovados e a documentação atualizada.
+8. Registrar no histórico abaixo o commit ou Pull Request incorporado.
+
+### Registro de alterações
+
+| Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
+|---|---|---|---|---|---|
+| 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
+
+Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
