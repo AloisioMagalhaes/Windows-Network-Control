@@ -102,4 +102,9 @@ Describe 'NetworkControl' {
         $s=Get-Content (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.ps1') -Raw
         if ($s.IndexOf('Get-FileHash') -gt $s.IndexOf('Expand-Archive')) { throw 'release is extracted before checksum validation' }
     }
+
+    It 'repassa o modo remoto por parâmetros nomeados' {
+        $s=Get-Content (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.ps1') -Raw
+        if ($s -notmatch '\$x=@\{Mode=\$Mode\}' -or $s -notmatch '& \$p @x') { throw 'remote mode forwarding is not named' }
+    }
 }

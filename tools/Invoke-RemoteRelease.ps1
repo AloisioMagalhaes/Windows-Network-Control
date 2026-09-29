@@ -24,9 +24,9 @@ if ((Get-FileHash $z -Algorithm SHA256).Hash.ToLowerInvariant() -ne $h) { Remove
 Expand-Archive $z $d -Force
 $p=Join-Path $d 'src\NetworkControl.ps1'
 if (!(Test-Path $p -PathType Leaf)) { throw 'NetworkControl.ps1 not found' }
-$x=@('-Mode',$Mode)
-if ($ConfigPath) { $x+=@('-ConfigPath',$ConfigPath) } else { $x+=@('-ConfigPath',(Join-Path $d 'config\example.json')) }
-if ($ProgramPath) { $x+=@('-ProgramPath',$ProgramPath) }
-if ($ConfirmApply) { $x+='-ConfirmApply' }
+$x=@{Mode=$Mode}
+if ($ConfigPath) { $x.ConfigPath=$ConfigPath } else { $x.ConfigPath=Join-Path $d 'config\example.json' }
+if ($ProgramPath) { $x.ProgramPath=$ProgramPath }
+if ($ConfirmApply) { $x.ConfirmApply=$true }
 & $p @x
 exit $LASTEXITCODE
