@@ -7,12 +7,12 @@ Describe 'NetworkControl' {
     }
 
     It 'aceita categorias DNS suportadas' {
-        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'Technitium'; Categories = @('adult','torrents') } } } catch { throw }
+        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; DohTemplate='https://dns.nextdns.io/{ProfileId}'; Categories = @('adult','torrents') } } } catch { throw }
     }
 
     It 'rejeita categoria DNS desconhecida' {
         $threw = $false
-        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'Technitium'; Categories = @('unknown') } } } catch { $threw = $true }
+        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; DohTemplate='https://dns.nextdns.io/{ProfileId}'; Categories = @('unknown') } } } catch { $threw = $true }
         if (!$threw) { throw 'unknown category was accepted' }
     }
 
@@ -38,13 +38,33 @@ Describe 'NetworkControl' {
 
     It 'exige diretório de backup na configuração' {
         $threw = $false
-        try { Test-NcConfig -Config @{ Dns = @{ Provider = 'Technitium'; Categories = @() } } } catch { $threw = $true }
+        try { Test-NcConfig -Config @{ Dns = @{ Provider = 'NextDNS'; Categories = @() } } } catch { $threw = $true }
         if (!$threw) { throw 'missing backup directory was accepted' }
     }
 
     It 'rejeita endpoint DNS remoto sem HTTPS' {
         $threw = $false
-        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'Technitium'; Endpoint = 'http://dns.local'; Categories = @() } } } catch { $threw = $true }
+        try { Test-NcConfig -Config @{ BackupDirectory = 'C:\Backups'; Dns = @{ Provider = 'NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; DohTemplate='http://dns.local'; Categories = @() } } } catch { $threw = $true }
         if (!$threw) { throw 'insecure DNS endpoint was accepted' }
+    }
+
+    It 'aceita NextDNS como provedor remoto' {
+        $c = Get-NcDefaultConfig
+        $c.Dns.Provider = 'NextDNS'
+        $c.Dns.ProfileId = 'abc123'
+        $c.Dns.ApiBaseUrl = 'https://api.nextdns.io'
+        if (!(Test-NcConfig $c)) { throw 'NextDNS configuration was rejected' }
+    }
+
+    It 'gera plano DoH nativo sem dependência local' {
+        $p = Get-NcRemoteDnsPlan -Config ([pscustomobject]@{ BackupDirectory='C:\Backups'; Dns = [pscustomobject]@{ Provider='NextDNS'; ProfileId='abc123'; ApiBaseUrl='https://api.nextdns.io'; DohBootstrapServers=@('45.90.28.0','45.90.30.0'); DohTemplate='https://dns.nextdns.io/{ProfileId}'; Categories=@() } })
+        if ($p.Provider -ne 'NextDNS' -or $p.Template -ne 'https://dns.nextdns.io/abc123' -or $p.BootstrapServers.Count -ne 2) { throw 'invalid remote DNS plan' }
+    }
+
+    It 'mapeia categorias suportadas para ações da API remota' {
+        $c = Get-NcDefaultConfig
+        $c.Dns.ProfileId = 'abc123'
+        $a = Get-NcNextDnsActions $c
+        if (($a.Id -notcontains 'porn') -or ($a.Id -notcontains 'nextdns-recommended')) { throw 'required NextDNS actions missing' }
     }
 }

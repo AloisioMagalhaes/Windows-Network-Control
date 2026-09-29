@@ -3,7 +3,12 @@
   "BackupDirectory": "backups",
   "Dns": {
     "Endpoint": "https://127.0.0.1:5380",
-    "Provider": "Technitium",
+    "Provider": "NextDNS",
+    "ProfileId": "SEU_PROFILE_ID",
+    "ApiBaseUrl": "https://api.nextdns.io",
+    "ApiKeyEnvironmentVariable": "NEXTDNS_API_KEY",
+    "DohTemplate": "https://dns.nextdns.io/{ProfileId}",
+    "DohBootstrapServers": ["45.90.28.0", "45.90.30.0"],
     "Categories": ["advertising_tracking", "adult", "torrents", "p2p_file_sharing", "gaming", "proxy_vpn"]
   },
   "AllowedPrograms": [],

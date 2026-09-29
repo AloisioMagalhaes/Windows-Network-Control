@@ -28,28 +28,25 @@ O projeto deverá:
 - Domínios novos, CDNs compartilhadas, VPNs, DoH, DoT e endereços IP diretos podem contornar filtros DNS.
 - O bloqueio por domínio deverá ser implementado pelo provedor DNS ou por resolução controlada; regras nativas do firewall deverão ser usadas para controles locais.
 
-## 4. Provedor DNS
+## 4. Provedor DNS remoto
 
-O sistema deverá permitir configurar um provedor via arquivo de configuração ou parâmetros do script.
+O sistema deverá configurar o DNS remoto diretamente no Windows, sem instalar cliente, serviço, daemon, runtime ou dependência adicional no computador.
 
 ### Requisito de custo e licença
 
-O provedor DNS deverá ser 100% gratuito para uso local, sem assinatura obrigatória, sem limite artificial de consultas e preferencialmente publicado como software livre ou código aberto.
+O provedor DNS deverá possuir plano gratuito documentado, API HTTPS, filtragem por perfil e limite compatível com o MVP. O limite gratuito deverá ser verificado antes de cada release, pois pode mudar.
 
-O projeto não deverá depender de uma API SaaS paga. A API deverá ser executada em uma instância controlada pelo usuário, na rede local ou no próprio computador, sem envio obrigatório de consultas ou chaves para terceiros.
+O projeto não deverá depender de um servidor DNS local. A API será usada somente para administrar o perfil remoto; as consultas do Windows serão encaminhadas ao provedor pela configuração nativa de DNS sobre HTTPS (DoH).
 
-### Provedor principal
+### Provedor selecionado para o MVP
 
-Technitium DNS Server deverá ser a integração principal por ser gratuito, open source sob GPLv3, compatível com Windows e possuir API HTTP para configuração. A filtragem deverá usar DNSBL, listas de bloqueio e regras locais.
+NextDNS será o primeiro adaptador remoto. A lista Free-for-Dev registra 300 mil consultas mensais gratuitas. A API oficial permite administrar perfis, listas permitidas, listas negadas e categorias; o Windows 11 permite configurar o endpoint DoH nativamente usando os endereços de bootstrap `45.90.28.0` e `45.90.30.0`.
 
-Documentação: https://technitium.com/dns/
+Referências: https://github.com/ripienaar/free-for-dev, https://nextdns.github.io/api/, https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress
 
-### Alternativas open source
+O perfil NextDNS deverá ser criado pelo usuário. A chave ficará somente em `NEXTDNS_API_KEY` ou mecanismo equivalente de segredo. Ela nunca deverá ser gravada no repositório, no arquivo de configuração ou nos logs.
 
-- AdGuard Home: https://github.com/AdguardTeam/AdGuardHome
-- Pi-hole: https://docs.pi-hole.net/api/
-
-O projeto deverá abstrair o provedor por meio de um adaptador para permitir substituição sem alterar o núcleo do firewall.
+O projeto deverá abstrair o provedor por adaptador, mas não poderá considerar gratuito, remoto ou filtrável um provedor sem comprovação atual de API, limites e categorias.
 
 ## 5. Requisitos funcionais
 
@@ -232,8 +229,17 @@ O segundo incremento implementado contém:
 - diretório de backup configurável;
 - exportação automática da configuração do firewall antes de `Apply`;
 - restauração por arquivo `.wfw`;
-- validação de endpoint DNS com HTTPS;
-- configuração padrão do Technitium DNS Server.
+- validação de perfil NextDNS e endpoint DoH com HTTPS;
+- plano de configuração DNS remoto sem dependência local;
+- configuração nativa do Windows para DoH.
+
+O terceiro incremento implementado contém:
+
+- validação de perfil, API e endpoint DoH do NextDNS;
+- plano de ações remoto para categoria adulta e bloqueio de anúncios/rastreadores;
+- autenticação da API exclusivamente por variável de ambiente;
+- configuração dos servidores DNS nativos do Windows 11;
+- 12 testes TDD aprovados localmente.
 
 Execute os testes com:
 
@@ -259,7 +265,7 @@ Para restaurar um backup:
 .\src\NetworkControl.ps1 -Mode Restore -BackupPath .\backups\NWC-firewall-AAAAMMDD-HHMMSS.wfw
 ```
 
-O modo `Apply` exige `-ConfirmApply` e cria o backup automaticamente. A integração efetiva com a API HTTP do Technitium, a criação das regras por processo e a filtragem das categorias DNS ainda serão implementadas nos próximos ciclos TDD. O uso de `netsh advfirewall` para exportação e importação segue a necessidade de preservar uma cópia reversível da política, conforme a recomendação de documentação e manutenção da política de firewall (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
+O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. A integração inicial da API NextDNS cobre anúncios/rastreadores e conteúdo adulto; torrent, jogos, VPNs, processos e emuladores ainda exigem listas de domínios ou regras locais adicionais. O uso de `netsh advfirewall` para exportação e importação segue a necessidade de preservar uma cópia reversível da política, conforme a recomendação de documentação e manutenção da política de firewall (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
 
 ## 15. Rastreabilidade obrigatória antes do merge
 
@@ -285,6 +291,8 @@ O fluxo obrigatório será:
 | 2026-09-29 | `0880b64` | Backup, restauração e validação de endpoint DNS HTTPS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados com Pester 3.4 | API DNS e regras de processos ainda não integradas |
 | 2026-09-29 | `9b40f96` | Automação de testes, logs, simulação e releases via GitHub Actions | `README.md`, `.github/workflows/verify.yml` | 9 testes aprovados localmente | Execução do workflow depende do GitHub Actions |
 | 2026-09-29 | `125e0e7` | Compatibilidade dos testes com Pester local e runner do GitHub Actions | `src/NetworkControl.psm1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados localmente e no GitHub Actions: [run 36565772559](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36565772559) | Execução de firewall continua local |
+| 2026-09-29 | `PENDENTE` | Migração para provedor DNS remoto NextDNS sem dependência local | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 11 testes aprovados localmente | Execução remota pendente |
+| 2026-09-29 | `PENDENTE` | API NextDNS, plano DoH nativo e ações remotas de filtragem | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente | Execução remota pendente |
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
 
@@ -309,6 +317,13 @@ git push origin v0.1.0
 ```
 
 O workflow não aplica regras de firewall no runner nem em computadores de usuários. A aplicação continua sendo uma operação local, explícita e administrativa. Os logs de CI comprovam testes e simulação, mas não comprovam que o firewall de um computador específico foi alterado.
+
+### Erros observados e correções no workflow
+
+- O runner Windows utilizava Pester 5 enquanto o computador local utilizava Pester 3.4. Os testes foram convertidos para asserções PowerShell compatíveis com ambas as versões.
+- O carregamento direto do `.ps1` não exportava funções no escopo do Pester 5. Foi criado `src/NetworkControl.psm1` e os testes passaram a importar o módulo.
+- A execução remota confirmou 9 testes aprovados no run `36565772559`; o novo ciclo DNS ampliou a suíte para 11 testes.
+- O aviso de migração do Node.js das ações externas permanece observável no GitHub Actions e deverá ser revisado quando as ações publicarem versões compatíveis.
 
 Workflows são tratados como código sensível: as ações externas são fixadas por commit, o token recebe permissões mínimas e nenhum segredo DNS é impresso nos logs. Essa prática reduz riscos de cadeia de suprimentos e de exposição de credenciais (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
 
@@ -361,3 +376,9 @@ RIES, Eric. *The lean startup: how today’s entrepreneurs use continuous innova
 ROMAN, Adam; MNICH, Michal. Test-driven development with mutation testing: an experimental study. *Software Quality Journal*, v. 29, p. 1-38, 2021. DOI: 10.1007/s11219-020-09534-x. Disponível em: <https://doi.org/10.1007/s11219-020-09534-x>. Acesso em: 29 set. 2026.
 
 ROMANO, Simone et al. Findings from a multi-method study on test-driven development. *Information and Software Technology*, v. 89, p. 64-77, 2017. DOI: 10.1016/j.infsof.2017.03.010. Disponível em: <https://doi.org/10.1016/j.infsof.2017.03.010>. Acesso em: 29 set. 2026.
+
+RIPENAAR, Riaan (org.). *Free for developers*. [S. l.]: GitHub, 2026. Disponível em: <https://github.com/ripienaar/free-for-dev>. Acesso em: 29 set. 2026.
+
+NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: <https://nextdns.github.io/api/>. Acesso em: 29 set. 2026.
+
+MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
