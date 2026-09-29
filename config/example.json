@@ -22,8 +22,11 @@
       "PornCategory": true,
       "PiracyCategory": true,
       "SafeSearch": true,
+      "YouTubeRestrictedMode": true,
       "AllowAffiliateTrackingLinks": false
     },
+    "NextDnsCategories": ["porn", "piracy", "gambling", "dating", "gaming", "social-networks", "video-streaming"],
+    "NextDnsServices": [],
     "Categories": ["advertising_tracking", "adult", "torrents", "p2p_file_sharing", "gaming", "proxy_vpn"]
   },
   "AllowedPrograms": [],

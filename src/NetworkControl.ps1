@@ -13,7 +13,7 @@ function Get-NcDefaultConfig {
     [pscustomobject]@{
         RulePrefix='NWC'
         BackupDirectory='backups'
-        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;MandatoryFeatures=[pscustomobject]@{AdsTrackersBlocklist=$true;ThreatIntelligenceFeeds=$true;NativeTrackingProtection=$true;DisguisedThirdPartyTrackers=$true;BlockBypassMethods=$true;PornCategory=$true;PiracyCategory=$true;SafeSearch=$true;AllowAffiliateTrackingLinks=$false};Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
+        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;MandatoryFeatures=[pscustomobject]@{AdsTrackersBlocklist=$true;ThreatIntelligenceFeeds=$true;NativeTrackingProtection=$true;DisguisedThirdPartyTrackers=$true;BlockBypassMethods=$true;PornCategory=$true;PiracyCategory=$true;SafeSearch=$true;YouTubeRestrictedMode=$true;AllowAffiliateTrackingLinks=$false};NextDnsCategories=@('porn','piracy','gambling','dating','gaming','social-networks','video-streaming');NextDnsServices=@();Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
         AllowedPrograms=@()
         BlockedPrograms=@()
         BlockedServices=@()
@@ -71,10 +71,10 @@ function Get-NcRequiredNextDnsFeatures($Config) {
 function Get-NcNextDnsProfilePayload($Config) {
     Test-NcConfig $Config | Out-Null
     $f = $Config.Dns.MandatoryFeatures
-    $c = @()
-    if ('adult' -in $Config.Dns.Categories) { $c += @{id='porn';active=$true} }
-    if ('p2p_file_sharing' -in $Config.Dns.Categories -or 'torrents' -in $Config.Dns.Categories) { $c += @{id='piracy';active=$true} }
-    @{security=@{threatIntelligenceFeeds=($f.ThreatIntelligenceFeeds -eq $true)};privacy=@{blocklists=@(@{id='nextdns-recommended'});natives=@(@{id='windows'});disguisedTrackers=($f.DisguisedThirdPartyTrackers -eq $true);allowAffiliate=($f.AllowAffiliateTrackingLinks -eq $true)};parentalControl=@{categories=$c;safeSearch=($f.SafeSearch -eq $true);blockBypass=($f.BlockBypassMethods -eq $true)}}
+    $ids = if ($Config.Dns.NextDnsCategories) { @($Config.Dns.NextDnsCategories) } else { @('porn','piracy') }
+    $c = @($ids | ForEach-Object { @{id=$_;active=$true} })
+    $s = @($Config.Dns.NextDnsServices | ForEach-Object { @{id=$_;active=$true} })
+    @{security=@{threatIntelligenceFeeds=$true;aiThreatDetection=$true;googleSafeBrowsing=$true;cryptojacking=$true;dnsRebinding=$true;idnHomographs=$true;typosquatting=$true;dga=$true;nrd=$true;ddns=$true;parking=$true;csam=$true};privacy=@{blocklists=@(@{id='nextdns-recommended'});natives=@(@{id='windows'});disguisedTrackers=$true;allowAffiliate=$false};parentalControl=@{services=$s;categories=$c;safeSearch=$true;youtubeRestrictedMode=$true;blockBypass=$true};settings=@{logs=@{enabled=$true;drop=@{ip=$true;domain=$false}};blockPage=@{enabled=$true};performance=@{cnameFlattening=$true}}}
 }
 
 function Invoke-NcNextDnsProfile($Config) {

@@ -79,6 +79,12 @@ O bloqueio de jogos online deverá usar serviços e domínios explicitamente sel
 
 Fonte da seleção: [NextDNS](https://nextdns.io/), [metadados oficiais de privacidade e controle parental](https://github.com/nextdns/metadata), [blocklist recomendada](https://github.com/nextdns/blocklists/blob/main/blocklists/nextdns-recommended.json) e [API de perfis](https://nextdns.github.io/api/).
 
+### Política NextDNS maximizada
+
+Quando `Apply` é executado com `NEXTDNS_API_KEY`, o payload ativa os recursos de segurança documentados pela API: Threat Intelligence, AI Threat Detection, Google Safe Browsing, Cryptojacking, DNS Rebinding, IDN Homographs, Typosquatting, DGA, NRD, DDNS, Parked Domains e CSAM. Também ativa blocklist recomendada, Native Tracking para Windows, rastreadores disfarçados, logs com remoção do IP, block page, SafeSearch, YouTube Restricted Mode e Block Bypass Methods.
+
+O exemplo ativa as categorias NextDNS `porn`, `piracy`, `gambling`, `dating`, `gaming`, `social-networks` e `video-streaming`. Serviços específicos de jogos, redes sociais ou streaming devem ser adicionados em `NextDnsServices` somente após validação dos logs, porque o bloqueio por DNS pode afetar domínios compartilhados. Essas configurações ampliam a cobertura remota, mas não transformam DNS em identificação de processo, bloqueio de executável, controle de virtualização ou política de navegador.
+
 ### Configuração nativa no Windows 11
 
 O modo padrão do projeto é DoH sem instalação de aplicativo:
@@ -406,6 +412,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `1004adf` | Atualização do PRD para implantação em computadores de alunos e políticas DoH dos navegadores | `README.md` | README validado e workflow aprovado | [Actions 36573968150](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36573968150) |
 | 2026-09-29 | `b522944` | Correção de escopo: políticas de navegador e bloqueio local de contorno marcados como pendentes | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36574541447](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36574541447) |
 | 2026-09-29 | `262ad1b` | Revisão completa do PRD contra o comportamento real do script e reorganização do desenvolvimento atual | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36575368882](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36575368882) |
+| 2026-09-29 | `PENDENTE` | Ampliação do payload NextDNS para máxima cobertura de segurança, privacidade, controle parental e observabilidade | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | Validação local pendente | Execução remota pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 

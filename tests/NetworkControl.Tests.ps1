@@ -76,7 +76,7 @@ Describe 'NetworkControl' {
 
     It 'gera payload completo para proteção NextDNS' {
         $p = Get-NcNextDnsProfilePayload (Get-NcDefaultConfig)
-        if (!$p.security.threatIntelligenceFeeds -or !$p.privacy.disguisedTrackers -or $p.privacy.allowAffiliate -or !$p.parentalControl.safeSearch -or !$p.parentalControl.blockBypass -or ($p.parentalControl.categories.id -notcontains 'porn') -or ($p.parentalControl.categories.id -notcontains 'piracy')) { throw 'incomplete NextDNS payload' }
+        if (!$p.security.threatIntelligenceFeeds -or !$p.security.aiThreatDetection -or !$p.security.googleSafeBrowsing -or !$p.security.cryptojacking -or !$p.security.dnsRebinding -or !$p.security.idnHomographs -or !$p.security.typosquatting -or !$p.security.dga -or !$p.security.nrd -or !$p.security.ddns -or !$p.security.parking -or !$p.security.csam -or !$p.privacy.disguisedTrackers -or $p.privacy.allowAffiliate -or !$p.parentalControl.safeSearch -or !$p.parentalControl.youtubeRestrictedMode -or !$p.parentalControl.blockBypass -or ($p.parentalControl.categories.id -notcontains 'porn') -or ($p.parentalControl.categories.id -notcontains 'piracy') -or !$p.settings.logs.enabled -or !$p.settings.blockPage.enabled) { throw 'incomplete NextDNS payload' }
     }
 
     It 'oferece modo de configuração DoH sem API key' {
