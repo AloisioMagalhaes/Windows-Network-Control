@@ -255,6 +255,7 @@ O fluxo obrigatório será:
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
+| 2026-09-29 | `PENDENTE` | Inclusão de referências para MVP, requisitos, qualidade e testes | `README.md` | Revisão bibliográfica concluída | Referências normativas podem exigir acesso institucional |
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
 
@@ -282,15 +283,27 @@ Quando possível, os testes deverão ser escritos antes da implementação, incl
 
 Os critérios de conclusão foram convertidos em evidências verificáveis: testes aprovados, simulação sem alteração do sistema, backup anterior à aplicação, idempotência, logs sem segredos, reversão funcional e validação de exclusões. Essa abordagem evita tratar cobertura de código isolada como prova suficiente de segurança ou eficácia, em conformidade com as limitações apontadas pela pesquisa empírica sobre TDD (ROMANO et al., 2017; ROMAN; MNICH, 2021).
 
+### 16.5 Regra obrigatória de citação
+
+Toda afirmação técnica, requisito baseado em norma, decisão de arquitetura, limitação de segurança, critério de teste ou conclusão de qualidade deverá conter citação autor-data no próprio texto e referência completa na seção 17, preferencialmente em fonte primária, acadêmica, normativa ou documentação oficial. Não serão apresentadas como fatos conclusões sem fonte, sem teste reproduzível ou sem indicação explícita de que são hipóteses do MVP.
+
+As citações deverão seguir o sistema autor-data da ABNT. Exemplos: (INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION; INSTITUTE OF ELECTRICAL AND ELECTRONICS ENGINEERS, 2018), (RIES, 2011) e (ROMAN; MNICH, 2021).
+
 ## 17. Referências
 
 As referências seguem a ABNT NBR 6023:2018.
 
 EUROPEAN UNION AGENCY FOR CYBERSECURITY. *Security and privacy for public DNS resolvers*. Heraklion: ENISA, 2020. Disponível em: <https://www.enisa.europa.eu/sites/default/files/publications/ENISA_Report_-_Security_and_Privacy_for_Public_DNS_Resolvers.pdf>. Acesso em: 29 set. 2026.
 
+INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION; INSTITUTE OF ELECTRICAL AND ELECTRONICS ENGINEERS. *ISO/IEC/IEEE 29148:2018: systems and software engineering: life cycle processes: requirements engineering*. Geneva: ISO, 2018. Disponível em: <https://standards.ieee.org/ieee/29148/6937/>. Acesso em: 29 set. 2026.
+
+INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION. *ISO/IEC 25010:2023: systems and software engineering: SQuaRE: product quality model*. Geneva: ISO, 2023. Disponível em: <https://www.iso.org/standard/78176.html>. Acesso em: 29 set. 2026.
+
 FUCCI, Davide et al. A dissection of the test-driven development process: does it really matter to test-first or to test-last? *IEEE Transactions on Software Engineering*, v. 43, n. 7, p. 597-614, 2017. DOI: 10.1109/TSE.2016.2616567. Disponível em: <https://doi.org/10.1109/TSE.2016.2616567>. Acesso em: 29 set. 2026.
 
 NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. *Guidelines on firewalls and firewall policy*. Gaithersburg: NIST, 2009. (Special Publication 800-41, Revision 1). Disponível em: <https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-41r1.pdf>. Acesso em: 29 set. 2026.
+
+RIES, Eric. *The lean startup: how today’s entrepreneurs use continuous innovation to create radically successful businesses*. New York: Crown Business, 2011. Disponível em: <https://theleanstartup.com/>. Acesso em: 29 set. 2026.
 
 ROMAN, Adam; MNICH, Michal. Test-driven development with mutation testing: an experimental study. *Software Quality Journal*, v. 29, p. 1-38, 2021. DOI: 10.1007/s11219-020-09534-x. Disponível em: <https://doi.org/10.1007/s11219-020-09534-x>. Acesso em: 29 set. 2026.
 
