@@ -71,7 +71,7 @@ jobs:
   version:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
@@ -93,4 +93,19 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git tag -a $next $env:GITHUB_SHA -m "Release $next"
           git push origin $next
+          "RELEASE_TAG=$next" | Out-File $env:GITHUB_ENV -Append
           "Automatic release tag: $next" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+      - name: Build and publish automatic release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $d = Join-Path $env:RUNNER_TEMP 'Windows-Network-Control'
+          New-Item $d -ItemType Directory -Force | Out-Null
+          Copy-Item README.md,LICENSE,src,config,tests $d -Recurse -Force -ErrorAction SilentlyContinue
+          & .\src\NetworkControl.ps1 -Mode Simulate -ConfigPath .\config\example.json | Tee-Object (Join-Path $d 'simulation.log')
+          $z = Join-Path $env:RUNNER_TEMP "Windows-Network-Control-$env:RELEASE_TAG.zip"
+          Compress-Archive "$d\*" $z -Force
+          $h = (Get-FileHash $z -Algorithm SHA256).Hash
+          "$h  $(Split-Path $z -Leaf)" | Set-Content "$z.sha256"
+          gh release create $env:RELEASE_TAG $z "$z.sha256" --generate-notes --verify-tag
