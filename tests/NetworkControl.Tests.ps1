@@ -112,4 +112,9 @@ Describe 'NetworkControl' {
         $s=Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw
         if ($s -notmatch 'RemoveManagedConfiguration' -or $s -notmatch 'Remove-NcBrowserPolicies' -or $s -notmatch 'Remove-NcWindowsRemoteDns') { throw 'managed configuration removal missing' }
     }
+
+    It 'mantém launcher de execução por sessão' {
+        if (!(Test-Path (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.cmd'))) { throw 'cmd launcher missing' }
+        if ((Get-Content (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.cmd') -Raw) -notmatch 'ExecutionPolicy Bypass') { throw 'session launcher missing' }
+    }
 }

@@ -19,6 +19,7 @@ if ($t -notmatch 'api\.github\.com/repos/AloisioMagalhaes/Windows-Network-Contro
 if ($t -notmatch 'browser_download_url') { throw 'remote release command does not use published assets' }
 if ($t -notmatch '\[scriptblock\]::Create\(\(irm') { throw 'one-line remote bootstrap command is missing' }
 if ($t -notmatch 'v\d+\.\d+\.\d+/tools/Invoke-RemoteRelease\.ps1') { throw 'remote bootstrap must use a fixed release tag' }
+if ($t -notmatch 'ExecutionPolicy Bypass -File') { throw 'execution policy workaround is missing' }
 $n = ([regex]::Matches($t, '(?m)^\| 20\d\d-\d\d-\d\d \|')).Count
 if ($n -lt 1) { Write-Error 'README change log is empty'; exit 1 }
 "README validation passed: $($r.Count) requirements, $n change-log entries"

@@ -15,19 +15,19 @@ O programa não “vigia” a tela dos alunos e não bloqueia todos os programas
 Abra o PowerShell como **Administrador**. Primeiro baixe a ferramenta publicada e valide a release antes de executá-la:
 
 ```powershell
-$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.30/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d
+$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.30/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d; powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Simulate
 ```
 
 1. Veja o que aconteceria, sem alterar o computador:
 
 ```powershell
-& $d -Mode Simulate
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Simulate
 ```
 
 2. Veja o estado atual:
 
 ```powershell
-& $d -Mode Status
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Status
 ```
 
 3. Faça um backup antes de aplicar mudanças:
@@ -39,8 +39,8 @@ $b="$env:USERPROFILE\Desktop\NWC-firewall-backup-$(Get-Date -Format yyyyMMdd-HHm
 4. Configure o DNS e os navegadores, se essa for a política desejada:
 
 ```powershell
-& $d -Mode ConfigureDns -ConfirmApply
-& $d -Mode ConfigureBrowserPolicies -ConfirmApply
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ConfigureDns -ConfirmApply
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ConfigureBrowserPolicies -ConfirmApply
 ```
 
 5. Para desfazer as configurações gerenciadas pelo projeto:
@@ -519,10 +519,26 @@ O bootstrap consulta a release mais recente com `Invoke-WebRequest`, baixa o ZIP
 
 Não use `Invoke-WebRequest URL | Invoke-Expression`: o projeto exige validação do artefato antes da execução.
 
+### Erro de política de execução
+
+Se aparecer `PSSecurityException`, `UnauthorizedAccess` ou “a execução de scripts está desabilitada”, consulte as políticas sem alterá-las:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+Use o launcher de sessão abaixo, que não grava uma nova política no computador:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Status
+```
+
+Se `MachinePolicy` ou `UserPolicy` estiver definido por Política de Grupo, o administrador responsável deve autorizar uma política adequada ou assinar o script. O projeto não recomenda alterar permanentemente `LocalMachine` para contornar esse controle.
+
 Para uso remoto em uma linha, o bootstrap pode ser carregado por `irm` e executado com parâmetros:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.26/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.30/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
 ```
 
 O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `main` é adequada somente para teste controlado. Mesmo iniciado por `irm`/`iex`, o bootstrap valida o SHA-256 da release antes de extrair e executar o script principal; requer conexão à API pública e aos assets do GitHub.
@@ -532,32 +548,32 @@ O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `mai
 Execute o PowerShell como Administrador e baixe o bootstrap da release publicada:
 
 ```powershell
-$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.26/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d
+$d="$env:TEMP\NWC-bootstrap.ps1"; Invoke-WebRequest 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.30/tools/Invoke-RemoteRelease.ps1' -OutFile $d; Unblock-File $d
 ```
 
 Teste sem alterar o computador:
 
 ```powershell
-& $d -Mode Simulate
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Simulate
 ```
 
 Consulte o estado do firewall:
 
 ```powershell
-& $d -Mode Status
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Status
 ```
 
 Liste executáveis instalados nos diretórios padrão:
 
 ```powershell
-& $d -Mode ListPrograms
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ListPrograms
 & $d -Mode ListPrograms | Out-File "$env:TEMP\programas.txt"
 ```
 
 Liste regras gerenciadas pelo projeto:
 
 ```powershell
-& $d -Mode ListRules
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ListRules
 ```
 
 Bloqueie entrada e saída de um ou mais executáveis selecionados:
@@ -576,20 +592,20 @@ Remova as regras de bloqueio gerenciadas:
 Configure somente o DNS-over-HTTPS do Windows, sem API key:
 
 ```powershell
-& $d -Mode ConfigureDns -ConfirmApply
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ConfigureDns -ConfirmApply
 ```
 
 Desative o DoH próprio de Chrome, Edge, Firefox e Brave para que usem o DNS do Windows:
 
 ```powershell
-& $d -Mode ConfigureBrowserPolicies -ConfirmApply
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode ConfigureBrowserPolicies -ConfirmApply
 ```
 
 Para aplicar backup, firewall, DNS e política remota NextDNS, forneça a chave somente na sessão atual:
 
 ```powershell
 $env:NEXTDNS_API_KEY='SUA_CHAVE'
-& $d -Mode Apply -ConfirmApply
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $d -Mode Apply -ConfirmApply
 ```
 
 Localize e restaure um backup do firewall:
@@ -634,6 +650,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `8175f5d` | Tratamento documentado de `PSSecurityException` com launcher de sessão `ExecutionPolicy Bypass` | `README.md`, `tools/Invoke-RemoteRelease.cmd`, `tools/Test-Readme.ps1`, `tests/NetworkControl.Tests.ps1` | 22 testes Pester e README validados localmente | Políticas `MachinePolicy`/`UserPolicy` continuam sob controle administrativo |
 | 2026-09-29 | `b2c0e2b` | Reorganização didática do README pela técnica Feynman, com caminho seguro, comandos essenciais e dicionário para leigos | `README.md` | 21 testes Pester e README validados localmente | As operações administrativas continuam exigindo elevação e revisão humana |
 | 2026-09-29 | `cd0df98` | Inclusão de remoção de configuração gerenciada para firewall, DNS/DoH e políticas dos navegadores | `README.md`, `src/NetworkControl.ps1`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 21 testes Pester e README validados localmente | O modo redefine DNS para automático e não restaura políticas anteriores personalizadas |
 | 2026-09-29 | `0837472` | Alinhamento das quatro seções de execução remota, inventário, bootstrap e teste local com a sequência da release `v0.1.26` | `README.md` | README validado localmente | Operações de alteração exigem Administrador; `Apply` exige API key |
@@ -762,6 +779,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
