@@ -474,7 +474,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
-| 2026-09-29 | `07552e5` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
+| 2026-09-29 | `178b987` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
 | 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
 | 2026-09-29 | `ed2ec1e` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
