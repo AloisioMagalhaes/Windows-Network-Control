@@ -401,12 +401,17 @@ Para restaurar um backup:
 Execute em PowerShell iniciado como Administrador. O procedimento baixa a release, valida o SHA-256, extrai em diretório temporário, desbloqueia o script, configura o DoH e grava um transcript local. O modo `ConfigureDns` não exige API key e não aplica firewall.
 
 ```powershell
-$u='https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/download/v0.1.9/Windows-Network-Control-v0.1.9.zip'
-$h='db6555758e750f3513effc5b8db1b1bfaaa3cd4b1b8bc582841743276684584c'
-$d=Join-Path $env:TEMP 'Windows-Network-Control-v0.1.9'
+$r=Invoke-RestMethod 'https://api.github.com/repos/AloisioMagalhaes/Windows-Network-Control/releases/latest'
+$n=$r.tag_name
+$a=$r.assets | Where-Object name -eq "Windows-Network-Control-$n.zip"
+$s=$r.assets | Where-Object name -eq "Windows-Network-Control-$n.zip.sha256"
+$d=Join-Path $env:TEMP "Windows-Network-Control-$n"
 $z="$d.zip"
+$q="$d.sha256"
 Remove-Item $d,$z -Recurse -Force -ErrorAction SilentlyContinue
-Invoke-WebRequest $u -OutFile $z
+Invoke-WebRequest $a.browser_download_url -OutFile $z
+Invoke-WebRequest $s.browser_download_url -OutFile $q
+$h=(Get-Content $q -Raw).Split()[0].ToLower()
 if ((Get-FileHash $z -Algorithm SHA256).Hash.ToLower() -ne $h) { throw 'SHA-256 inválido' }
 Expand-Archive $z $d -Force
 Unblock-File "$d\src\NetworkControl.ps1"
@@ -415,7 +420,7 @@ Start-Transcript "$d\configure-dns.log" -Force
 Stop-Transcript
 ```
 
-Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. O comando acima deve sempre apontar para a release publicada mais recente e para o SHA-256 do respectivo arquivo. Para vários computadores, use GPO, Intune ou ferramenta de administração remota autenticada. Não distribua a API key no comando; `Apply` exige `NEXTDNS_API_KEY` por mecanismo protegido. Políticas próprias de Chrome, Edge, Brave e Firefox ainda precisam ser aplicadas separadamente.
+Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. O comando resolve a release publicada mais recente e valida o SHA-256 do respectivo arquivo, evitando atualizar manualmente versão e hash no README. Para vários computadores, use GPO, Intune ou ferramenta de administração remota autenticada. Não distribua a API key no comando; `Apply` exige `NEXTDNS_API_KEY` por mecanismo protegido. Políticas próprias de Chrome, Edge, Brave e Firefox ainda precisam ser aplicadas separadamente.
 
 O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. Para evitar perda de serviços essenciais, o MVP mantém entrada bloqueada e saída permitida por padrão; a saída só deverá ser bloqueada depois que uma allowlist granular for implementada e validada. Essa escolha segue a orientação da Microsoft para manter saída permitida na maioria das implantações e a recomendação de bloquear por exceção somente com regras explícitas (MICROSOFT, 2026; NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009). O payload remoto maximizado cobre os recursos de segurança, privacidade e controle parental declarados no perfil; processos, emuladores, virtualização, políticas de navegador e bloqueios locais de contorno continuam limitações do MVP.
 
@@ -459,7 +464,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `v0.1.5` | Primeira release publicada pelo fluxo automático após merge em `main` | `Windows-Network-Control-v0.1.5.zip` | [Actions 36576733262](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36576733262) aprovado; [release v0.1.5](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.5) publicada | `v0.1.4` é uma tag histórica sem release |
 | 2026-09-29 | `432dbc9` | Procedimento documentado de execução remota da release nos computadores dos alunos | `README.md` | README validado e workflow aprovado em [Actions 36577826258](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36577826258) | A aplicação em massa depende de GPO, Intune ou ferramenta administrativa |
 | 2026-09-29 | `888a11c` | Baseline seguro do firewall: saída permitida até existir allowlist granular | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 16 testes, README validado e workflow aprovado em [Actions 36579146937](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36579146937) | Bloqueio granular de saída continua planejado |
-| 2026-09-29 | `PENDENTE` | Atualização do comando de execução remota para a release `v0.1.9` e validação do SHA-256 | `README.md`, `tools/Test-Readme.ps1` | Validação local pendente | Próxima release exigirá atualização automática ou documental do comando |
+| 2026-09-29 | `PENDENTE` | Comando remoto resolve a release mais recente e valida o SHA-256 publicado | `README.md`, `tools/Test-Readme.ps1` | Validação local pendente | A API pública do GitHub precisa estar acessível no computador |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
