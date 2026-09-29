@@ -67,3 +67,30 @@ jobs:
         run: |
           "Release ref: $env:GITHUB_REF_NAME" | Out-File $env:GITHUB_STEP_SUMMARY -Append
           "Simulation completed without applying firewall changes." | Out-File $env:GITHUB_STEP_SUMMARY -Append
+
+  version:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Create next patch tag
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tags = @(git tag --list 'v*' --sort=-v:refname)
+          $last = if ($tags) { $tags[0] } else { 'v0.0.0' }
+          if ($last -notmatch '^v(\d+)\.(\d+)\.(\d+)$') { throw "Invalid version tag: $last" }
+          $next = "v$($Matches[1]).$($Matches[2]).$([int]$Matches[3] + 1)"
+          if (git tag --list $next) { throw "Tag already exists: $next" }
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag -a $next $env:GITHUB_SHA -m "Release $next"
+          git push origin $next
+          "Automatic release tag: $next" | Out-File $env:GITHUB_STEP_SUMMARY -Append
