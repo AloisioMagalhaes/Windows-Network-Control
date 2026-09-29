@@ -310,6 +310,25 @@ A release deverá conter:
 - histórico de alterações;
 - instruções para criar e publicar a release no GitHub.
 
+### Versionamento e publicação contínua
+
+Todo merge efetivado em `main` deverá passar pelos testes e gerar uma versão patch automática no formato `v0.x.y`. O GitHub Actions deverá criar a tag, empacotar o artefato, gerar SHA-256 e publicar a release. A publicação ocorrerá somente depois da validação do README e dos testes; falhas não deverão criar release.
+
+Alterações que exigirem decisão humana de compatibilidade, segurança ou mudança de contrato deverão usar versão minor/major manual e não depender da publicação automática de patch.
+
+## 12.1 Limitações e soluções planejadas
+
+| Limitação | Solução planejada | Evidência de conclusão |
+|---|---|---|
+| Navegadores podem usar DoH próprio | Políticas GPO/Intune ou módulo de políticas por navegador | Política aplicada e teste de endpoint em Chrome, Edge, Brave e Firefox |
+| DNS não identifica processos ou emuladores | Regras de firewall por caminho, serviço, driver e processo | Teste controlado com aplicação autorizada e bloqueada |
+| VPN, Tor, proxy e DoH alternativo podem contornar DNS | Bloquear portas, endpoints conhecidos e binários, preservando administração | Testes de conectividade e reversão |
+| Firewall pode interromper Windows Update ou administração | Allowlist explícita, backup e modo simulação | Atualização e gerenciamento preservados após `Apply` |
+| Categorias DNS podem gerar falsos positivos | Aplicar por perfil, analisar logs e manter denylist incremental | Relatório de bloqueios e exceções revisado |
+| Distribuição manual não escala para laboratório | GPO, Intune ou execução remota autenticada | Inventário de computadores e logs por dispositivo |
+| API key é segredo operacional | GitHub Secret, variável local protegida e nunca registrar valor | Auditoria sem segredo nos logs |
+| Release automática pode publicar mudança inadequada | Testes obrigatórios, revisão de PR e patch automático limitado | Workflow aprovado e tag única |
+
 ## 13. Critério de conclusão
 
 O projeto será considerado concluído quando o script puder criar backup, simular, aplicar, validar, consultar e reverter as regras de firewall, integrar um provedor DNS por API, configurar DoH sem API key, aplicar políticas dos quatro navegadores, bloquear contornos locais e categorias configuradas e preservar as exclusões padrão sem duplicar regras ou expor segredos. A aplicação centralizada das políticas de navegador e a distribuição em massa ainda não estão concluídas no script atual.
@@ -413,6 +432,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `b522944` | Correção de escopo: políticas de navegador e bloqueio local de contorno marcados como pendentes | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36574541447](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36574541447) |
 | 2026-09-29 | `262ad1b` | Revisão completa do PRD contra o comportamento real do script e reorganização do desenvolvimento atual | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36575368882](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36575368882) |
 | 2026-09-29 | `0124161` | Ampliação do payload NextDNS para máxima cobertura de segurança, privacidade, controle parental e observabilidade | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 15 testes, README validado e workflow aprovado | [Actions 36575955282](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36575955282) |
+| 2026-09-29 | `PENDENTE` | Política de versionamento patch e publicação automática após merge em `main`; soluções para limitações técnicas | `README.md`, `.github/workflows/verify.yml` | Documentação registrada antes da alteração do workflow | Implementação do workflow pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
