@@ -1,4 +1,4 @@
-. "$PSScriptRoot\..\src\NetworkControl.ps1"
+Import-Module "$PSScriptRoot\..\src\NetworkControl.ps1" -Force
 
 Describe 'NetworkControl' {
 
