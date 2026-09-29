@@ -67,4 +67,10 @@ Describe 'NetworkControl' {
         $a = Get-NcNextDnsActions $c
         if (($a.Id -notcontains 'porn') -or ($a.Id -notcontains 'nextdns-recommended')) { throw 'required NextDNS actions missing' }
     }
+
+    It 'mantém recursos obrigatórios do NextDNS ativados' {
+        $c = Get-NcDefaultConfig
+        if (@(Get-NcRequiredNextDnsFeatures $c).Count) { throw 'mandatory NextDNS features are disabled' }
+        if ($c.Dns.MandatoryFeatures.AllowAffiliateTrackingLinks) { throw 'affiliate tracking is enabled' }
+    }
 }

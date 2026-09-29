@@ -13,7 +13,7 @@ function Get-NcDefaultConfig {
     [pscustomobject]@{
         RulePrefix='NWC'
         BackupDirectory='backups'
-        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
+        Dns=[pscustomobject]@{Provider='NextDNS';ProfileId='923be7';ApiBaseUrl='https://api.nextdns.io';ApiKeyEnvironmentVariable='NEXTDNS_API_KEY';Mode='DoH';DohTemplate='https://dns.nextdns.io/{ProfileId}';DohBootstrapServers=@('45.90.28.0','45.90.30.0');DotHostname='{ProfileId}.dns.nextdns.io';Ipv6Servers=@('2a07:a8c0::92:3be7','2a07:a8c1::92:3be7');LinkedIpv4Servers=@('45.90.28.212','45.90.30.212');UseIpv6=$false;MandatoryFeatures=[pscustomobject]@{AdsTrackersBlocklist=$true;ThreatIntelligenceFeeds=$true;NativeTrackingProtection=$true;DisguisedThirdPartyTrackers=$true;BlockBypassMethods=$true;PornCategory=$true;PiracyCategory=$true;SafeSearch=$true;AllowAffiliateTrackingLinks=$false};Categories=@('advertising_tracking','adult','torrents','p2p_file_sharing','gaming','proxy_vpn')}
         AllowedPrograms=@()
         BlockedPrograms=@()
         BlockedServices=@()
@@ -61,6 +61,11 @@ function Get-NcNextDnsActions($Config) {
     if ('adult' -in $Config.Dns.Categories) { $a += [pscustomobject]@{Kind='category';Id='porn';Active=$true} }
     if ('advertising_tracking' -in $Config.Dns.Categories) { $a += [pscustomobject]@{Kind='blocklist';Id='nextdns-recommended';Active=$true} }
     $a
+}
+
+function Get-NcRequiredNextDnsFeatures($Config) {
+    $f = $Config.Dns.MandatoryFeatures
+    @('AdsTrackersBlocklist','ThreatIntelligenceFeeds','NativeTrackingProtection','DisguisedThirdPartyTrackers','BlockBypassMethods','PornCategory','PiracyCategory','SafeSearch') | Where-Object { $f.$_ -ne $true }
 }
 
 function Invoke-NcNextDnsProfile($Config) {
@@ -123,5 +128,5 @@ if ($MyInvocation.InvocationName -ne '.') {
 }
 
 if ($ExecutionContext.SessionState.Module) {
-    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
 }

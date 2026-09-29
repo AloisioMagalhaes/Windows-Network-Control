@@ -59,6 +59,25 @@ O arquivo `config/example.json` usa o perfil remoto `923be7`:
 
 Os endereços com IP vinculado somente deverão ser usados depois que o IP público da rede estiver associado ao perfil NextDNS. Para computadores móveis, o MVP prioriza DoH por perfil. O perfil e seus limites devem ser confirmados antes de cada release.
 
+### Recursos do provedor e política obrigatória
+
+Com base nos recursos oficiais do NextDNS, o MVP deverá manter ativados:
+
+- **NextDNS Ads & Trackers Blocklist**: bloqueio inicial de anúncios e rastreadores;
+- **Threat Intelligence Feeds**: bloqueio de domínios associados a malware, phishing e ameaças conhecidas;
+- **Native Tracking Protection**: proteção contra rastreamento em nível de sistema operacional;
+- **Block Disguised Third-Party Trackers**: detecção de rastreadores que se apresentam como domínios próprios;
+- **Block Bypass Methods**: bloqueio de métodos conhecidos de contorno, como proxies, VPNs e Tor, quando disponível no perfil;
+- **Porn**: bloqueio obrigatório de conteúdo adulto;
+- **Piracy**: bloqueio obrigatório de torrent e domínios de compartilhamento P2P classificados;
+- **SafeSearch**: filtragem de resultados explícitos em mecanismos compatíveis.
+
+O recurso **Allow Affiliate & Tracking Links** deverá permanecer desativado, pois o objetivo do projeto prioriza redução de rastreamento. Listas adicionais agressivas, como listas comunitárias extensas, são opcionais até que sejam avaliadas por falsos positivos e compatibilidade com Windows, atualizações e navegadores.
+
+O bloqueio de jogos online deverá usar serviços e domínios explicitamente selecionados no controle parental; a existência de uma categoria de jogos não será presumida como universal. Emuladores, processos locais e virtualização continuam sendo responsabilidade das regras do firewall, pois blocklists DNS só atuam sobre domínios.
+
+Fonte da seleção: [NextDNS](https://nextdns.io/), [metadados oficiais de privacidade e controle parental](https://github.com/nextdns/metadata), [blocklist recomendada](https://github.com/nextdns/blocklists/blob/main/blocklists/nextdns-recommended.json) e [API de perfis](https://nextdns.github.io/api/).
+
 ### Configuração nativa no Windows 11
 
 O modo padrão do projeto é DoH sem instalação de aplicativo:
@@ -285,6 +304,14 @@ O quarto incremento implementado contém:
 - seleção opcional de IPv6 na configuração nativa do Windows;
 - plano remoto validado por testes para todos os transportes informados.
 
+O quinto incremento implementado contém:
+
+- política declarativa de recursos obrigatórios do NextDNS;
+- bloqueio obrigatório de anúncios, rastreadores, ameaças, pornografia e pirataria;
+- SafeSearch e métodos de contorno documentados como requisitos;
+- affiliate/tracking links desativado por padrão;
+- teste automatizado para impedir desativação dos recursos obrigatórios.
+
 O terceiro incremento implementado contém:
 
 - validação de perfil, API e endpoint DoH do NextDNS;
@@ -345,6 +372,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `125e0e7` | Compatibilidade dos testes com Pester local e runner do GitHub Actions | `src/NetworkControl.psm1`, `tests/NetworkControl.Tests.ps1` | 9 testes aprovados localmente e no GitHub Actions: [run 36565772559](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36565772559) | Execução de firewall continua local |
 | 2026-09-29 | `e25eea8` | Migração para provedor DNS remoto NextDNS sem dependência local, API e plano DoH nativo | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente e no [Actions run 36566439511](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36566439511) | Execução do firewall continua local |
 | 2026-09-29 | `0440802` | Inclusão do perfil NextDNS `923be7`, endpoints DoH, DoT/QUIC, IPv6 e IP vinculado | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 12 testes aprovados localmente e no [Actions run 36567012588](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567012588) | Execução do firewall continua local |
+| 2026-09-29 | `PENDENTE` | Política obrigatória de blocklists, inteligência de ameaças, proteção nativa e controle parental NextDNS | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 13 testes e validação documental aprovados localmente | Execução remota pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
