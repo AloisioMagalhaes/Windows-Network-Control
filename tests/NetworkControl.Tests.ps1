@@ -107,4 +107,9 @@ Describe 'NetworkControl' {
         $s=Get-Content (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.ps1') -Raw
         if ($s -notmatch '\$x=@\{Mode=\$Mode\}' -or $s -notmatch '& \$p @x') { throw 'remote mode forwarding is not named' }
     }
+
+    It 'expõe remoção da configuração gerenciada' {
+        $s=Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw
+        if ($s -notmatch 'RemoveManagedConfiguration' -or $s -notmatch 'Remove-NcBrowserPolicies' -or $s -notmatch 'Remove-NcWindowsRemoteDns') { throw 'managed configuration removal missing' }
+    }
 }

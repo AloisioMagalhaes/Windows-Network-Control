@@ -541,6 +541,14 @@ Remova todas as regras `NWC-*` gerenciadas pelo projeto:
 & $d -Mode RemoveManagedRules
 ```
 
+Para remover todas as configurações gerenciadas pelo projeto — regras `NWC-*`, políticas DoH dos navegadores e DoH/DNS configurado pelo script — use o modo explícito abaixo:
+
+```powershell
+& $d -Mode RemoveManagedConfiguration -ConfirmApply
+```
+
+Esse modo redefine os servidores DNS das interfaces físicas para o comportamento automático do Windows e remove somente as propriedades de política criadas pelo projeto. Ele não restaura políticas anteriores personalizadas; para o firewall, use o backup `.wfw` com `Restore`.
+
 Sequência recomendada: `Simulate`, `Status`, `ListPrograms`, `ConfigureDns`, `ConfigureBrowserPolicies`, `BlockPrograms`, `ListRules`, `UnblockPrograms`. Execute `Apply` somente após revisar backup, chave NextDNS e exceções. `Restore` requer um arquivo `.wfw` existente.
 
 ## 15. Rastreabilidade obrigatória antes do merge
@@ -562,6 +570,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `d2fa606` | Inclusão de remoção de configuração gerenciada para firewall, DNS/DoH e políticas dos navegadores | `README.md`, `src/NetworkControl.ps1`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 21 testes Pester e README validados localmente | O modo redefine DNS para automático e não restaura políticas anteriores personalizadas |
 | 2026-09-29 | `0837472` | Alinhamento das quatro seções de execução remota, inventário, bootstrap e teste local com a sequência da release `v0.1.26` | `README.md` | README validado localmente | Operações de alteração exigem Administrador; `Apply` exige API key |
 | 2026-09-29 | `ebb7df1` | Inclusão de comandos e exemplos para testar todos os modos do script | `README.md` | 20 testes Pester e README validados localmente | Operações de alteração exigem Administrador e revisão prévia |
 | 2026-09-29 | `071027b` | Correção da documentação para usar o bootstrap corrigido da `v0.1.24` | `README.md` | README validado localmente | `v0.1.22` não deve mais ser usada para execução remota |
@@ -688,6 +697,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 

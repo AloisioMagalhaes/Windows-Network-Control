@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Simulate','Status','ListRules','ListPrograms','ConfigureDns','ConfigureBrowserPolicies','BlockPrograms','UnblockPrograms','Apply','RemoveManagedRules','Restore')]
+    [ValidateSet('Simulate','Status','ListRules','ListPrograms','ConfigureDns','ConfigureBrowserPolicies','BlockPrograms','UnblockPrograms','Apply','RemoveManagedRules','RemoveManagedConfiguration','Restore')]
     [string]$Mode='Simulate',
     [string]$ConfigPath,
     [string]$BackupPath,
@@ -55,6 +55,16 @@ function Set-NcBrowserPolicies {
     )
     foreach ($x in $keys) { New-Item $x[0] -Force | Out-Null; New-ItemProperty $x[0] $x[1] -Value $x[2] -PropertyType String -Force | Out-Null }
     $f='HKLM:\SOFTWARE\Policies\Mozilla\Firefox'; New-Item $f -Force | Out-Null; New-ItemProperty $f 'DNSOverHTTPS' -Value 0 -PropertyType DWord -Force | Out-Null; New-ItemProperty $f 'DNSOverHTTPSLocked' -Value 1 -PropertyType DWord -Force | Out-Null
+}
+
+function Remove-NcBrowserPolicies {
+    @(@('HKLM:\SOFTWARE\Policies\Google\Chrome','DnsOverHttpsMode'),@('HKLM:\SOFTWARE\Policies\Microsoft\Edge','DnsOverHttpsMode'),@('HKLM:\SOFTWARE\Policies\BraveSoftware\Brave','DnsOverHttpsMode'),@('HKLM:\SOFTWARE\Policies\Mozilla\Firefox','DNSOverHTTPS'),@('HKLM:\SOFTWARE\Policies\Mozilla\Firefox','DNSOverHTTPSLocked')) | ForEach-Object { if (Test-Path $_[0]) { Remove-ItemProperty $_[0] $_[1] -ErrorAction SilentlyContinue } }
+}
+
+function Remove-NcWindowsRemoteDns($Config) {
+    $p=Get-NcRemoteDnsPlan $Config
+    if (Get-Command Remove-DnsClientDohServerAddress -ErrorAction SilentlyContinue) { foreach ($s in $p.BootstrapServers) { Remove-DnsClientDohServerAddress -ServerAddress $s -ErrorAction SilentlyContinue } }
+    Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ResetServerAddresses }
 }
 
 function Test-NcConfig($Config) {
@@ -168,6 +178,7 @@ function Invoke-Nc([string]$Mode,$Config) {
             Set-NcWindowsRemoteDns $Config | Out-Null
         }
         RemoveManagedRules { Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object DisplayName -like "$($Config.RulePrefix)-*" | Remove-NetFirewallRule }
+        RemoveManagedConfiguration { if (!$ConfirmApply) { throw 'RemoveManagedConfiguration requires -ConfirmApply' }; Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object DisplayName -like "$($Config.RulePrefix)-*" | Remove-NetFirewallRule; Remove-NcBrowserPolicies; Remove-NcWindowsRemoteDns $Config }
         Restore { Restore-NcFirewallBackup $BackupPath }
     }
 }
@@ -178,6 +189,6 @@ if ($MyInvocation.InvocationName -ne '.') {
 }
 
 if ($ExecutionContext.SessionState.Module) {
-    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Get-NcInstalledPrograms,Get-NcProgramPaths,Get-NcDefaultConfig,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Get-NcSafeFirewallPolicy,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Invoke-Nc
+    Export-ModuleMember -Function Get-NcDefaultConfig,Get-NcRuleName,Get-NcInstalledPrograms,Get-NcProgramPaths,Get-NcDefaultConfig,Test-NcConfig,Get-NcBackupPath,Export-NcFirewallBackup,Restore-NcFirewallBackup,Get-NcRemoteDnsPlan,Get-NcNextDnsHeaders,Invoke-NcNextDnsCategory,Get-NcNextDnsActions,Get-NcRequiredNextDnsFeatures,Get-NcNextDnsProfilePayload,Get-NcSafeFirewallPolicy,Invoke-NcNextDnsProfile,Set-NcWindowsRemoteDns,Remove-NcWindowsRemoteDns,Invoke-Nc
 }
 

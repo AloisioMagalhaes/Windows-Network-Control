@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Simulate','Status','ListRules','ListPrograms','ConfigureDns','ConfigureBrowserPolicies','BlockPrograms','UnblockPrograms','Apply','RemoveManagedRules','Restore')]
+    [ValidateSet('Simulate','Status','ListRules','ListPrograms','ConfigureDns','ConfigureBrowserPolicies','BlockPrograms','UnblockPrograms','Apply','RemoveManagedRules','RemoveManagedConfiguration','Restore')]
     [string]$Mode='Simulate',
     [string]$ConfigPath,
     [string[]]$ProgramPath,
