@@ -396,7 +396,28 @@ Para restaurar um backup:
 .\src\NetworkControl.ps1 -Mode Restore -BackupPath .\backups\NWC-firewall-AAAAMMDD-HHMMSS.wfw
 ```
 
-O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. A integração inicial da API NextDNS cobre anúncios/rastreadores e conteúdo adulto; torrent, jogos, VPNs, processos e emuladores ainda exigem listas de domínios ou regras locais adicionais. O uso de `netsh advfirewall` para exportação e importação segue a necessidade de preservar uma cópia reversível da política, conforme a recomendação de documentação e manutenção da política de firewall (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
+### Execução remota por terminal nos computadores dos alunos
+
+Execute em PowerShell iniciado como Administrador. O procedimento baixa a release, valida o SHA-256, extrai em diretório temporário, desbloqueia o script, configura o DoH e grava um transcript local. O modo `ConfigureDns` não exige API key e não aplica firewall.
+
+```powershell
+$u='https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/download/v0.1.6/Windows-Network-Control-v0.1.6.zip'
+$h='449ed17fc87bfc55f0805e23abfdd8f77ea6234c794924798103f97e56365711'
+$d=Join-Path $env:TEMP 'Windows-Network-Control-v0.1.6'
+$z="$d.zip"
+Remove-Item $d,$z -Recurse -Force -ErrorAction SilentlyContinue
+Invoke-WebRequest $u -OutFile $z
+if ((Get-FileHash $z -Algorithm SHA256).Hash.ToLower() -ne $h) { throw 'SHA-256 inválido' }
+Expand-Archive $z $d -Force
+Unblock-File "$d\src\NetworkControl.ps1"
+Start-Transcript "$d\configure-dns.log" -Force
+& "$d\src\NetworkControl.ps1" -Mode ConfigureDns -ConfigPath "$d\config\example.json" -ConfirmApply
+Stop-Transcript
+```
+
+Valide com `Get-DnsClientDohServerAddress` e em `https://test.nextdns.io`. Para vários computadores, use GPO, Intune ou ferramenta de administração remota autenticada. Não distribua a API key no comando; `Apply` exige `NEXTDNS_API_KEY` por mecanismo protegido. Políticas próprias de Chrome, Edge, Brave e Firefox ainda precisam ser aplicadas separadamente.
+
+O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o backup automaticamente. O payload remoto maximizado cobre os recursos de segurança, privacidade e controle parental declarados no perfil; processos, emuladores, virtualização, políticas de navegador e bloqueios locais de contorno continuam limitações do MVP. O uso de `netsh advfirewall` para exportação e importação segue a necessidade de preservar uma cópia reversível da política, conforme a recomendação de documentação e manutenção da política de firewall (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
 
 ## 15. Rastreabilidade obrigatória antes do merge
 
@@ -436,6 +457,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `2667c72` | Correção documentada para o fluxo de release após limitação de eventos do `GITHUB_TOKEN` | `README.md` | Limitação reproduzida com a tag `v0.1.4` | Release `v0.1.4` permanece sem artefato |
 | 2026-09-29 | `51bd38b` | Publicação da tag, artefato e release no mesmo job após merge em `main` | `.github/workflows/verify.yml` | Workflow local validado com 15 testes; publicação remota em andamento | Tag automática não deve ser recriada |
 | 2026-09-29 | `v0.1.5` | Primeira release publicada pelo fluxo automático após merge em `main` | `Windows-Network-Control-v0.1.5.zip` | [Actions 36576733262](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36576733262) aprovado; [release v0.1.5](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.5) publicada | `v0.1.4` é uma tag histórica sem release |
+| 2026-09-29 | `PENDENTE` | Procedimento documentado de execução remota da release nos computadores dos alunos | `README.md` | Validação local pendente | A aplicação em massa depende de GPO, Intune ou ferramenta administrativa |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
