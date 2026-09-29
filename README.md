@@ -439,6 +439,22 @@ O modo `Apply` exige `-ConfirmApply`, a variável `NEXTDNS_API_KEY` e cria o bac
 
 `ListPrograms` inventaria executáveis em `C:\Program Files` e `C:\Program Files (x86)`. O bloqueio cria regras gerenciadas de entrada e saída somente para os caminhos selecionados; nenhum programa é bloqueado automaticamente. A política dos navegadores desativa o DoH próprio de Chrome, Edge, Brave e Firefox para que usem o DNS do Windows configurado pelo `ConfigureDns`; exige Administrador e reinício dos navegadores.
 
+### Bootstrap remoto curto com validação
+
+Depois de baixar a release manualmente e revisar o arquivo, execute o bootstrap local com uma linha:
+
+```powershell
+.\tools\Invoke-RemoteRelease.ps1 -Mode Simulate
+```
+
+O bootstrap consulta a release mais recente com `Invoke-WebRequest`, baixa o ZIP e o arquivo `.sha256`, valida o hash antes de `Expand-Archive` e somente então chama `NetworkControl.ps1`. Para configurar o DoH:
+
+```powershell
+.\tools\Invoke-RemoteRelease.ps1 -Mode ConfigureDns -ConfirmApply
+```
+
+Não use `Invoke-WebRequest URL | Invoke-Expression`: o projeto exige validação do artefato antes da execução.
+
 ## 15. Rastreabilidade obrigatória antes do merge
 
 Toda alteração no repositório deverá ser documentada no `README.md` antes de ser incorporada à branch principal `main`.
@@ -458,6 +474,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
+| 2026-09-29 | `07552e5` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
 | 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
 | 2026-09-29 | `ed2ec1e` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
 | 2026-09-29 | `0ee10f8` | Exigência de provedor DNS gratuito, auto-hospedado e open source | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 6 testes aprovados com Pester 3.4 | API DNS ainda não integrada |
@@ -576,5 +593,6 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 

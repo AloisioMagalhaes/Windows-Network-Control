@@ -97,4 +97,9 @@ Describe 'NetworkControl' {
         $s=Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw
         if ($s -notmatch 'ConfigureBrowserPolicies' -or $s -notmatch 'DnsOverHttpsMode' -or $s -notmatch 'DNSOverHTTPSLocked') { throw 'browser policies missing' }
     }
+
+    It 'valida o checksum antes de extrair a release remota' {
+        $s=Get-Content (Join-Path $PSScriptRoot '..\tools\Invoke-RemoteRelease.ps1') -Raw
+        if ($s.IndexOf('Get-FileHash') -gt $s.IndexOf('Expand-Archive')) { throw 'release is extracted before checksum validation' }
+    }
 }
