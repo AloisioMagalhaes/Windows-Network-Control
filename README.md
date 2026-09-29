@@ -312,7 +312,7 @@ A release deverá conter:
 
 ### Versionamento e publicação contínua
 
-Todo merge efetivado em `main` deverá passar pelos testes e gerar uma versão patch automática no formato `v0.x.y`. O GitHub Actions deverá criar a tag, empacotar o artefato, gerar SHA-256 e publicar a release. A publicação ocorrerá somente depois da validação do README e dos testes; falhas não deverão criar release.
+Todo merge efetivado em `main` deverá passar pelos testes e gerar uma versão patch automática no formato `v0.x.y`. O mesmo job do GitHub Actions deverá criar a tag, empacotar o artefato, gerar SHA-256 e publicar a release, pois uma tag criada pelo `GITHUB_TOKEN` não dispara outro workflow. A publicação ocorrerá somente depois da validação do README e dos testes; falhas não deverão criar release.
 
 Alterações que exigirem decisão humana de compatibilidade, segurança ou mudança de contrato deverão usar versão minor/major manual e não depender da publicação automática de patch.
 
@@ -433,6 +433,7 @@ O fluxo obrigatório será:
 | 2026-09-29 | `262ad1b` | Revisão completa do PRD contra o comportamento real do script e reorganização do desenvolvimento atual | `README.md` | 15 testes, README validado e workflow aprovado | [Actions 36575368882](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36575368882) |
 | 2026-09-29 | `0124161` | Ampliação do payload NextDNS para máxima cobertura de segurança, privacidade, controle parental e observabilidade | `README.md`, `config/example.json`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 15 testes, README validado e workflow aprovado | [Actions 36575955282](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36575955282) |
 | 2026-09-29 | `PENDENTE` | Política de versionamento patch e publicação automática após merge em `main`; soluções para limitações técnicas | `README.md`, `.github/workflows/verify.yml` | Documentação registrada antes da alteração do workflow | Implementação do workflow pendente |
+| 2026-09-29 | `PENDENTE` | Correção do fluxo de release após validação da limitação de eventos disparados por `GITHUB_TOKEN` | `README.md`, `.github/workflows/verify.yml` | Tag automática criada sem publicação; correção pendente | Release `v0.1.4` pendente |
 | 2026-09-29 | `0dfef60` | Correção do gatilho de tags para publicação automática de releases | `README.md`, `.github/workflows/verify.yml` | [Actions run 36567731332](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567731332) aprovado; [release v0.1.1](https://github.com/AloisioMagalhaes/Windows-Network-Control/releases/tag/v0.1.1) publicada | `v0.1.0` permanece apenas como tag |
 | 2026-09-29 | `d7354e5` | Validação automatizada do PRD do README e observabilidade documental | `README.md`, `tools/Test-Readme.ps1`, `.github/workflows/verify.yml` | 18 requisitos, 12 testes e [Actions run 36567421143](https://github.com/AloisioMagalhaes/Windows-Network-Control/actions/runs/36567421143) aprovados | Execução do firewall continua local |
 
