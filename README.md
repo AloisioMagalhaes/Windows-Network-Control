@@ -458,7 +458,7 @@ Não use `Invoke-WebRequest URL | Invoke-Expression`: o projeto exige validaçã
 Para uso remoto em uma linha, o bootstrap pode ser carregado por `irm` e executado com parâmetros:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.20/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/AloisioMagalhaes/Windows-Network-Control/v0.1.24/tools/Invoke-RemoteRelease.ps1'))) -Mode Simulate
 ```
 
 O uso de uma tag fixa é obrigatório para implantação rastreável. A URL `main` é adequada somente para teste controlado. Mesmo iniciado por `irm`/`iex`, o bootstrap valida o SHA-256 da release antes de extrair e executar o script principal; requer conexão à API pública e aos assets do GitHub.
@@ -481,7 +481,8 @@ O fluxo obrigatório será:
 ### Registro de alterações
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---| 
+| 2026-09-29 | `1651a5e` | Correção da documentação para usar o bootstrap corrigido da `v0.1.24` | `README.md` | README validado localmente | `v0.1.22` não deve mais ser usada para execução remota |
 | 2026-09-29 | `12a238c` | Correção do repasse de `-Mode` no bootstrap remoto usando parâmetros nomeados | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 20 testes Pester e README validados localmente | A release anterior apresentava erro ao repassar argumentos ao script principal |
 | 2026-09-29 | `be2d106` | Correção do validador do comando `irm` e atualização da tag fixa para `v0.1.18` | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | A release automática anterior foi publicada apesar da falha de validação documental |
 | 2026-09-29 | `e91fa94` | Atualização do comando de uma linha para a release publicada `v0.1.20` | `README.md` | README validado localmente | A tag deve permanecer publicada antes da implantação |
@@ -605,6 +606,7 @@ NEXTDNS. *NextDNS API documentation*. [S. l.]: NextDNS, [2026]. Disponível em: 
 MICROSOFT. *Get-DnsClientDohServerAddress*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientdohserveraddress>. Acesso em: 29 set. 2026.
 
 MICROSOFT. *Manage Windows Firewall with the command line*. Redmond: Microsoft Learn, [2026]. Disponível em: <https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line>. Acesso em: 29 set. 2026.
+
 
 
 
