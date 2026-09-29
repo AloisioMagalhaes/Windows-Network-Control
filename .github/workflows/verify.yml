@@ -1,0 +1,65 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Test
+        shell: pwsh
+        run: |
+          $log = Join-Path $env:RUNNER_TEMP 'network-control-test.log'
+          Start-Transcript -Path $log -Force
+          try {
+            if (!(Get-Module -ListAvailable Pester | Where-Object Version -ge ([version]'3.4.0'))) { Install-Module Pester -Scope CurrentUser -Force -MinimumVersion 3.4.0 }
+            $r = Invoke-Pester .\tests\NetworkControl.Tests.ps1 -PassThru
+            "Total: $($r.TotalCount) | Passed: $($r.PassedCount) | Failed: $($r.FailedCount)" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+            if ($r.FailedCount) { exit 1 }
+          } finally { Stop-Transcript }
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: verify-logs-${{ github.run_id }}
+          path: ${{ runner.temp }}/network-control-test.log
+
+  package:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build release artifact
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $d = Join-Path $env:RUNNER_TEMP 'Windows-Network-Control'
+          New-Item $d -ItemType Directory -Force | Out-Null
+          Copy-Item README.md,LICENSE,src,config,tests $d -Recurse -Force -ErrorAction SilentlyContinue
+          & .\src\NetworkControl.ps1 -Mode Simulate -ConfigPath .\config\example.json | Tee-Object (Join-Path $d 'simulation.log')
+          $z = Join-Path $env:RUNNER_TEMP "Windows-Network-Control-$env:GITHUB_REF_NAME.zip"
+          Compress-Archive "$d\*" $z -Force
+          $h = (Get-FileHash $z -Algorithm SHA256).Hash
+          "$h  $(Split-Path $z -Leaf)" | Set-Content "$z.sha256"
+          gh release create $env:GITHUB_REF_NAME $z "$z.sha256" --generate-notes --verify-tag
+      - name: Summary
+        if: always()
+        shell: pwsh
+        run: |
+          "Release ref: $env:GITHUB_REF_NAME" | Out-File $env:GITHUB_STEP_SUMMARY -Append
+          "Simulation completed without applying firewall changes." | Out-File $env:GITHUB_STEP_SUMMARY -Append

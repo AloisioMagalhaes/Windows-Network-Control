@@ -286,7 +286,31 @@ O fluxo obrigatório será:
 
 Nenhuma alteração deverá ser mesclada em `main` sem uma nova linha neste registro.
 
-## 16. Fundamentação científica e acadêmica
+## 16. Automação, logs e observabilidade
+
+O GitHub Actions executa a validação em cada `push` na `main`, Pull Request direcionado à `main` e execução manual. O workflow `.github/workflows/verify.yml`:
+
+- executa os testes Pester em ambiente Windows;
+- publica o total de testes, aprovados e falhos no resumo da execução;
+- grava transcript da execução e publica o log como artefato;
+- interrompe o processo quando há falhas;
+- executa apenas simulação durante o empacotamento;
+- cria um arquivo ZIP da release com script, configuração, testes, README e log de simulação;
+- gera checksum SHA-256;
+- publica a release automaticamente para tags no formato `v*`.
+
+Para publicar uma release observável:
+
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+O workflow não aplica regras de firewall no runner nem em computadores de usuários. A aplicação continua sendo uma operação local, explícita e administrativa. Os logs de CI comprovam testes e simulação, mas não comprovam que o firewall de um computador específico foi alterado.
+
+Workflows são tratados como código sensível: as ações externas são fixadas por commit, o token recebe permissões mínimas e nenhum segredo DNS é impresso nos logs. Essa prática reduz riscos de cadeia de suprimentos e de exposição de credenciais (NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY, 2009).
+
+## 17. Fundamentação científica e acadêmica
 
 ### 16.1 Objetivo e política de bloqueio
 
@@ -312,11 +336,11 @@ Os critérios de conclusão foram convertidos em evidências verificáveis: test
 
 ### 16.5 Regra obrigatória de citação
 
-Toda afirmação técnica, requisito baseado em norma, decisão de arquitetura, limitação de segurança, critério de teste ou conclusão de qualidade deverá conter citação autor-data no próprio texto e referência completa na seção 17, preferencialmente em fonte primária, acadêmica, normativa ou documentação oficial. Não serão apresentadas como fatos conclusões sem fonte, sem teste reproduzível ou sem indicação explícita de que são hipóteses do MVP.
+Toda afirmação técnica, requisito baseado em norma, decisão de arquitetura, limitação de segurança, critério de teste ou conclusão de qualidade deverá conter citação autor-data no próprio texto e referência completa na seção 18, preferencialmente em fonte primária, acadêmica, normativa ou documentação oficial. Não serão apresentadas como fatos conclusões sem fonte, sem teste reproduzível ou sem indicação explícita de que são hipóteses do MVP.
 
 As citações deverão seguir o sistema autor-data da ABNT. Exemplos: (INTERNATIONAL ORGANIZATION FOR STANDARDIZATION; INTERNATIONAL ELECTROTECHNICAL COMMISSION; INSTITUTE OF ELECTRICAL AND ELECTRONICS ENGINEERS, 2018), (RIES, 2011) e (ROMAN; MNICH, 2021).
 
-## 17. Referências
+## 18. Referências
 
 As referências seguem a ABNT NBR 6023:2018.
 
