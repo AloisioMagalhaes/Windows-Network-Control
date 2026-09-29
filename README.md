@@ -482,7 +482,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
-| 2026-09-29 | `f127dbd` | Requisito documentado para execução remota em uma linha via `irm` com tag fixa e validação anterior do artefato | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | `irm` executa o bootstrap remoto; a tag deve ser revisada antes da implantação |
+| 2026-09-29 | `662da0f` | Requisito documentado para execução remota em uma linha via `irm` com tag fixa e validação anterior do artefato | `README.md`, `tools/Test-Readme.ps1` | 19 testes Pester e README validados localmente | `irm` executa o bootstrap remoto; a tag deve ser revisada antes da implantação |
 | 2026-09-29 | `178b987` | Bootstrap remoto com `Invoke-WebRequest` e validação SHA-256 antes da execução | `README.md`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 19 testes Pester e README validados localmente | Requer acesso à API e aos assets públicos do GitHub |
 | 2026-09-29 | `84fcbfe` | Correção do status real da release: inventário, bloqueio seletivo e políticas dos navegadores passam a constar como entregues | `README.md` | 18 testes Pester e README validados localmente | Regras de contorno, allowlist automática e distribuição em massa continuam pendentes |
 | 2026-09-29 | `ed2ec1e` | Inventário de executáveis, bloqueio seletivo de entrada/saída e políticas DoH para Chrome, Edge, Firefox e Brave | `README.md`, `src/NetworkControl.ps1`, `tests/NetworkControl.Tests.ps1` | 18 testes Pester e README validados localmente | Requer Administrador; não bloqueia programas automaticamente |
