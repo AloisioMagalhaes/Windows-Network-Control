@@ -650,7 +650,7 @@ O fluxo obrigatório será:
 
 | Data | Commit ou PR | Alteração | Arquivos | Validação | Limitações |
 |---|---|---|---|---|---|
-| 2026-09-29 | `e080e3e` | Atualização dos exemplos para a release corrigida `v0.1.34` | `README.md` | README validado localmente | A política de execução pode ser imposta por GPO |
+| 2026-09-29 | `92ad6e6` | Atualização dos exemplos para a release corrigida `v0.1.34` | `README.md` | README validado localmente | A política de execução pode ser imposta por GPO |
 | 2026-09-29 | `f9ad37e` | Tratamento documentado de `PSSecurityException` com launcher de sessão `ExecutionPolicy Bypass` | `README.md`, `tools/Invoke-RemoteRelease.cmd`, `tools/Test-Readme.ps1`, `tests/NetworkControl.Tests.ps1` | 22 testes Pester e README validados localmente | Políticas `MachinePolicy`/`UserPolicy` continuam sob controle administrativo |
 | 2026-09-29 | `b2c0e2b` | Reorganização didática do README pela técnica Feynman, com caminho seguro, comandos essenciais e dicionário para leigos | `README.md` | 21 testes Pester e README validados localmente | As operações administrativas continuam exigindo elevação e revisão humana |
 | 2026-09-29 | `cd0df98` | Inclusão de remoção de configuração gerenciada para firewall, DNS/DoH e políticas dos navegadores | `README.md`, `src/NetworkControl.ps1`, `tools/Invoke-RemoteRelease.ps1`, `tests/NetworkControl.Tests.ps1` | 21 testes Pester e README validados localmente | O modo redefine DNS para automático e não restaura políticas anteriores personalizadas |
