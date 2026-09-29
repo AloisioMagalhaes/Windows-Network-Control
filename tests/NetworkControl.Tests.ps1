@@ -78,4 +78,8 @@ Describe 'NetworkControl' {
         $p = Get-NcNextDnsProfilePayload (Get-NcDefaultConfig)
         if (!$p.security.threatIntelligenceFeeds -or !$p.privacy.disguisedTrackers -or $p.privacy.allowAffiliate -or !$p.parentalControl.safeSearch -or !$p.parentalControl.blockBypass -or ($p.parentalControl.categories.id -notcontains 'porn') -or ($p.parentalControl.categories.id -notcontains 'piracy')) { throw 'incomplete NextDNS payload' }
     }
+
+    It 'oferece modo de configuração DoH sem API key' {
+        if ((Get-Content (Join-Path $PSScriptRoot '..\src\NetworkControl.ps1') -Raw) -notmatch "ConfigureDns") { throw 'ConfigureDns mode missing' }
+    }
 }

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Simulate','Status','ListRules','Apply','RemoveManagedRules','Restore')]
+    [ValidateSet('Simulate','Status','ListRules','ConfigureDns','Apply','RemoveManagedRules','Restore')]
     [string]$Mode='Simulate',
     [string]$ConfigPath,
     [string]$BackupPath,
@@ -115,6 +115,10 @@ function Invoke-Nc([string]$Mode,$Config) {
         Simulate { 'SIMULATION: no changes applied' }
         Status { Get-NetFirewallProfile | Select-Object Name,Enabled,DefaultInboundAction,DefaultOutboundAction }
         ListRules { Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object DisplayName -like "$($Config.RulePrefix)-*" }
+        ConfigureDns {
+            if (!$ConfirmApply) { throw 'ConfigureDns requires -ConfirmApply' }
+            Set-NcWindowsRemoteDns $Config | Out-Null
+        }
         Apply {
             if (!$ConfirmApply) { throw 'Apply requires -ConfirmApply' }
             Export-NcFirewallBackup $Config | Out-Null
